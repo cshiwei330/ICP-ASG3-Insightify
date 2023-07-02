@@ -1,33 +1,30 @@
-# Import required libraries
-from snowflake.snowpark.session import Session
-import json
-
-# Import Snowflake modules
-from snowflake.snowpark import Session
-import snowflake.snowpark.functions as F
-import snowflake.snowpark.types as T
-from snowflake.snowpark import Window
-from snowflake.snowpark.functions import col
+# Import neccessary packages
 import streamlit as st
 import pandas as pd
-# Getting Password,Username, Account
-import getpass
+import numpy as np
 
-# Get account credentials from a json file
-with open("account.json") as f:
-    data = json.load(f)
-    username = data["username"]
-    password = data["password"]
-    account = data["account"]
+# Define the app title and favicon
+st.set_page_config(page_title='ICP ASG 3', page_icon="favicon.ico")
 
-# Specify connection parameters
-connection_parameters = {
-    "account": account,
-    "user": username,
-    "password": password,
-}
+# Tabs set-up
+tab1, tab2, tab3, tab4, tab5 = st.tabs(['tab1', 'tab2', 'tab3', 'tab4', 'tab5'])
 
-# Create Snowpark session
-session = Session.builder.configs(connection_parameters).create()
-
-st.set_page_config(page_title='ICP ASG 3', page_icon=':money_with_wings:')
+with tab1:
+    st.title('Title')
+    st.subheader('Sub Title')
+    
+with tab2:
+    st.title('Title')
+    st.subheader('Sub Title')
+    
+with tab3:
+    st.title('Title')
+    st.subheader('Sub Title')
+    
+with tab4:
+    st.title('Title')
+    st.subheader('Sub Title')
+    
+with tab5:
+    st.title('Title')
+    st.subheader('Sub Title')
