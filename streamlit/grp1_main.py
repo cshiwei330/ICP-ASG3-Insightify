@@ -26,5 +26,5 @@ with tab4:
     st.subheader('Sub Title')
     
 with tab5:
-    st.title('Title')
+    st.title('Inventory Management')
     st.subheader('Sub Title')
