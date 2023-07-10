@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import datetime
+import pickle
 
 # Define the app title and favicon
 st.set_page_config(page_title='ICP ASG 3', page_icon="favicon.ico")
@@ -66,6 +67,69 @@ with tab4:
     st.title('Uplift Revenue of Churn/Non-Churn Customers')
     st.subheader('Sub Title')
     
+    with open('Uplift_1M.pkl', 'rb') as file:
+        uplift_1M = pickle.load(file)
+    
+    def load_Uplift_Churn_1W():
+    # Load the uplift prediction model
+        data = pd.read_csv("UpliftPrediction[1W].csv") 
+        return data
+    
+    # Load the 1W Uplift Model
+    uplift_predictions = load_Uplift_Churn_1W()
+    uplift_predictions = pd.DataFrame(uplift_predictions)
+    
+    # Slicer
+    years_with_us_range = st.slider("Years Range", uplift_predictions['YEARS_WITH_US'].min(), 
+                                    uplift_predictions['YEARS_WITH_US'].max(), (uplift_predictions['YEARS_WITH_US'].min(), uplift_predictions['YEARS_WITH_US'].max()))
+
+    st.subheader(years_with_us_range)
+    filtered_data = uplift_predictions[(uplift_predictions['YEARS_WITH_US'] >= years_with_us_range[0]) & (uplift_predictions['YEARS_WITH_US'] < years_with_us_range[1])]
+    filtered_data = filtered_data.drop(columns=['CUSTOMER_ID','MONETARY_M3_HO','PREDICTED_PROBA_0','PREDICTED_PROBA_1'])
+    
+    if st.button("Predict", key='4'):
+        pred = uplift_1M.predict_proba(filtered_data)
+        st.dataframe(pred)
+    
 with tab5:
     st.title('Inventory Management')
     st.subheader('Sub Title')
+    
+    
+    def load_Uplift_Churn():
+    # First load the original airbnb listtings dataset
+        data = pd.read_csv("UpliftPrediction[1W].csv") #use this for the original dataset, before transformations and cleaning
+        return data
+    uplift_predictions = load_Uplift_Churn()
+    print(uplift_predictions)
+    uplift_predictions = pd.DataFrame(uplift_predictions)
+    
+    years_with_us_range = st.slider("Years Range", uplift_predictions['YEARS_WITH_US'].min(), 
+                                    uplift_predictions['YEARS_WITH_US'].max(), (uplift_predictions['YEARS_WITH_US'].min(), uplift_predictions['YEARS_WITH_US'].max()), key='5')
+
+    def show_widgets(uplift_predictions):
+        if st.button('Show Q2 Data'):
+            st.table(uplift_predictions)
+        else:
+            st.table(uplift_predictions)
+        if st.checkbox('Select years with us'):
+            st.line_chart(uplift_predictions)
+        else:
+            st.line_chart(uplift_predictions)
+        quarter = st.radio('Which quarter?', ('Q1', 'Q2'))
+        if quarter == 'Q1':
+            st.line_chart(uplift_predictions)
+        elif quarter == 'Q2':
+            st.line_chart(uplift_predictions)
+        selected_quarter = st.selectbox('Which quarter?', ('Q1', 'Q2'))
+        if selected_quarter == 'Q1':
+            st.area_chart(uplift_predictions)
+        elif selected_quarter == 'Q2':
+            st.area_chart(uplift_predictions)
+                      
+    st.subheader(years_with_us_range)
+    filtered_data = uplift_predictions[(uplift_predictions['YEARS_WITH_US'] >= years_with_us_range[0]) & (uplift_predictions['YEARS_WITH_US'] < years_with_us_range[1])]
+    st.dataframe(uplift_predictions)
+    
+    st.subheader('Result')
+    st.dataframe(filtered_data)
