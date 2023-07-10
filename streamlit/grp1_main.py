@@ -63,7 +63,7 @@ with tab3:
     st.subheader('Sub Title')
     
 with tab4:
-    st.title('Title')
+    st.title('Uplift Revenue of Churn/Non-Churn Customers')
     st.subheader('Sub Title')
     
 with tab5:
