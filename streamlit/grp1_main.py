@@ -59,7 +59,7 @@ with tab2:
     st.subheader('Sub Title')
     
 with tab3:
-    st.title('Title')
+    st.title('Predicting Customer Churn')
     st.subheader('Sub Title')
     
 with tab4:
