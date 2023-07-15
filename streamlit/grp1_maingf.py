@@ -55,6 +55,7 @@ with tab3:
     st.subheader('Sub Title')
     
 with tab4:
+    
     st.title('Uplift Revenue of Churn/Non-Churn Customers')
     st.subheader('Sub Title')
     
@@ -68,17 +69,20 @@ with tab4:
     # Define function to load the uplift prediction model
     def load_Uplift_Churn_2W():
         data = pd.read_csv("./uplift/UpliftPrediction[2W].csv") 
-        return data
+        df = pd.DataFrame(data)
+        return df
     def load_Uplift_Churn_1M():
         data = pd.read_csv("./uplift/UpliftPrediction[1M].csv") 
-        return data
+        df = pd.DataFrame(data)
+        return df
     def load_Uplift_Churn_3M():
         data = pd.read_csv("./uplift/UpliftPrediction[3M].csv") 
-        return data
+        df = pd.DataFrame(data)
+        return df
     
     # Define function to load the cluster sales
     def load_cluster_sales_2W():
-        data = pd.read_csv("./uplift/clusterSales[2W].csv") 
+        data = pd.read_csv("./uplift/clusterSales[2W].csv")
         return data
     def load_cluster_sales_1M():
         data = pd.read_csv("./uplift/clusterSales[1M].csv") 
@@ -88,7 +92,8 @@ with tab4:
         return data
     def load_city_enc():
         data = pd.read_csv("./uplift/city_enc.csv") 
-        return data
+        city_dict = data.set_index('CITY').T.to_dict('dict')
+        return city_dict
 
      # Define the user input functions    
     def get_timeframe():
@@ -96,11 +101,18 @@ with tab4:
         timeframe = st.selectbox('Select a timeframe', timeframe_selection)
         return timeframe
     def get_city():
-        city_selection = st.multiselect("Select City:", options = list(load_city_enc()['CITY']))
+        city_selection = st.multiselect("Select City:", options = load_city_enc())
         city_list = list(city_selection)
         return city_list
+    def get_city_int(city_input):
+        # Load city mapping 
+        city_dict = load_city_enc()
+        city_int = [] # Store selected city frequency 
+        for each in city_input:
+            city_int.append(city_dict[each]['CITY_FREQUENCY'])
+        return city_int
         
-    # Slicer
+    # Slider
     timeframe_label =  [1,2,3,4]
     years_with_us_range = st.slider("Years as Member",timeframe_label[0],timeframe_label[-1], (timeframe_label[0],timeframe_label[-1]))
 
@@ -110,7 +122,7 @@ with tab4:
             pred_df["PREDICT_SALES_ST"] = (pred_df[0] * cluster_sales['Cluster0MeanSales'][0]) + (pred_df[1] * cluster_sales['Cluster1MeanSales'][0])
             
             # Merge pred_df and filteredata
-            result_df = uplift_predictions_duration.merge(pred_df, left_on="INDEX", right_index=True, how='inner')
+            result_df = uplift_predictions_duration.merge(pred_df, left_index=True, right_index=True, how='right')
             st.write(result_df)
             
             # Total sales
@@ -126,26 +138,27 @@ with tab4:
     
     
     # Define the user input fields
-    timeframe_input = get_timeframe()
-    city_input = get_city()
+    timeframe_input = get_timeframe() # Select Timeframe Model 
+    city_input = get_city() # Select City 
+    
     
     if st.button('Predict Uplift'):
         if (timeframe_input == '2 Weeks'):
             # Load the 2W Uplift Model
             uplift_predictions_2W = load_Uplift_Churn_2W()
-            uplift_predictions_2W = pd.DataFrame(uplift_predictions_2W)
             
-            city_df = load_city_enc()
-            city_selected = city_df[city_df['CITY'].isin(city_input)]
-            st.write(city_selected['CITY_FREQUENCY'])
+            # Get city int  
+            city_int = get_city_int(city_input)
+            
+            # Filter by user input 
+            filtered_data = uplift_predictions_2W[ (uplift_predictions_2W['YEARS_WITH_US'] >= years_with_us_range[0]) & (uplift_predictions_2W['YEARS_WITH_US'] < years_with_us_range[1]) 
+                                                  & (uplift_predictions_2W['CITY_FREQUENCY'].isin(city_int)) ]
 
-            filtered_data = uplift_predictions_2W[ (uplift_predictions_2W['YEARS_WITH_US'] >= years_with_us_range[0]) & (uplift_predictions_2W['YEARS_WITH_US'] < years_with_us_range[1])
-                                                  & (uplift_predictions_2W['CITY_FREQUENCY'].isin(city_selected['CITY_FREQUENCY'])) ]
             filtered_data = filtered_data.drop(columns=['CUSTOMER_ID','MONETARY_M3_HO','LTVCluster','PREDICTED_PROBA_0','PREDICTED_PROBA_1','PREDICT_SALES','INDEX'])
-            
-            # Make a prediction
+            st.write(filtered_data)
+            # Make a prediction, write as dataframe
             pred = uplift_2W.predict_proba(filtered_data)
-            pred_df = pd.DataFrame(pred)
+            pred_df = pd.DataFrame(pred, index=filtered_data.index)
             cluster_sales = load_cluster_sales_2W()
             
             find_uplift(pred_df, cluster_sales, uplift_predictions_2W)
@@ -153,41 +166,40 @@ with tab4:
         elif (timeframe_input == '1 Month'):
             # Load the 1M Uplift Model
             uplift_predictions_1M = load_Uplift_Churn_1M()
-            uplift_predictions_1M = pd.DataFrame(uplift_predictions_1M)
             
-            city_df = load_city_enc()
-            city_selected = city_df[city_df['CITY'].isin(city_input)]
-            st.write(city_selected['CITY_FREQUENCY'])
+            # Get city int  
+            city_int = get_city_int(city_input)
             
-            filtered_data = uplift_predictions_1M[(uplift_predictions_1M['YEARS_WITH_US'] >= years_with_us_range[0]) & (uplift_predictions_1M['YEARS_WITH_US'] < years_with_us_range[1]) 
-                                                  & (uplift_predictions_1M['CITY_FREQUENCY'].isin(city_selected['CITY_FREQUENCY'])) ]
-            filtered_data = uplift_predictions_1M.drop(columns=['CUSTOMER_ID','MONETARY_M3_HO','LTVCluster','PREDICTED_PROBA_0','PREDICTED_PROBA_1','PREDICT_SALES','INDEX'])
-            		
-            # Make a prediction
-            pred = uplift_1M.predict_proba(filtered_data)
-            pred_df = pd.DataFrame(pred)
-            cluster_sales = load_cluster_sales_1M()
+            # Filter by user input 
+            filtered_data = uplift_predictions_1M[ (uplift_predictions_1M['YEARS_WITH_US'] >= years_with_us_range[0]) & (uplift_predictions_1M['YEARS_WITH_US'] < years_with_us_range[1]) 
+                                                  & (uplift_predictions_1M['CITY_FREQUENCY'].isin(city_int)) ]
+
+            filtered_data = filtered_data.drop(columns=['CUSTOMER_ID','MONETARY_M3_HO','LTVCluster','PREDICTED_PROBA_0','PREDICTED_PROBA_1','PREDICT_SALES','INDEX'])
+            st.write(filtered_data)
+            # Make a prediction, write as dataframe
+            pred = uplift_2W.predict_proba(filtered_data)
+            pred_df = pd.DataFrame(pred, index=filtered_data.index)
+            cluster_sales = load_cluster_sales_2W()
             
-            # Use function to display cluster
             find_uplift(pred_df, cluster_sales, uplift_predictions_1M)
             
         elif (timeframe_input == '3 Months'):
             # Load the 3M Uplift Model
             uplift_predictions_3M = load_Uplift_Churn_3M()
-            uplift_predictions_3M = pd.DataFrame(uplift_predictions_3M)
             
-            city_df = load_city_enc()
-            city_selected = city_df[city_df['CITY'].isin(city_input)]
-            st.write(city_selected['CITY_FREQUENCY'])
+            # Get city int  
+            city_int = get_city_int(city_input)
             
-            filtered_data = uplift_predictions_3M[(uplift_predictions_3M['YEARS_WITH_US'] >= years_with_us_range[0]) & (uplift_predictions_3M['YEARS_WITH_US'] < years_with_us_range[1])
-                                                  & (uplift_predictions_3M['CITY_FREQUENCY'].isin(city_selected['CITY_FREQUENCY'])) ]
-            filtered_data = uplift_predictions_3M.drop(columns=['CUSTOMER_ID','MONETARY_M3_HO','LTVCluster','PREDICTED_PROBA_0','PREDICTED_PROBA_1','PREDICT_SALES','INDEX'])
-            
-            # Make a prediction
-            pred = uplift_3M.predict_proba(filtered_data)
-            pred_df = pd.DataFrame(pred)
-            cluster_sales = load_cluster_sales_3M()
+            # Filter by user input 
+            filtered_data = uplift_predictions_3M[ (uplift_predictions_3M['YEARS_WITH_US'] >= years_with_us_range[0]) & (uplift_predictions_3M['YEARS_WITH_US'] < years_with_us_range[1]) 
+                                                  & (uplift_predictions_3M['CITY_FREQUENCY'].isin(city_int)) ]
+
+            filtered_data = filtered_data.drop(columns=['CUSTOMER_ID','MONETARY_M3_HO','LTVCluster','PREDICTED_PROBA_0','PREDICTED_PROBA_1','PREDICT_SALES','INDEX'])
+            st.write(filtered_data)
+            # Make a prediction, write as dataframe
+            pred = uplift_2W.predict_proba(filtered_data)
+            pred_df = pd.DataFrame(pred, index=filtered_data.index)
+            cluster_sales = load_cluster_sales_2W()
             
             find_uplift(pred_df, cluster_sales, uplift_predictions_3M)
         

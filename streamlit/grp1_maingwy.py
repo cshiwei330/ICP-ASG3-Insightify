@@ -52,6 +52,19 @@ with tab2:
 with tab3:
     st.title('Predicting Customer Churn')
 
+    # select churn/not churn
+    city_option = st.selectbox(
+    'Select to see likely to churn/not churn customers',
+    ('Churn', 'Not Churn'))
+
+    # show details of cust likely to churn/not churn
+    customer_df = session.table("NGEE_ANN_POLYTECHNIC_FROSTBYTE_DATA_SHARE.raw_customer.customer_loyalty")
+    us_customer_df = customer_df.filter(F.col("COUNTRY")=="United States")
+    us_customer_df = us_customer_df.to_pandas()
+    us_customer_df = us_customer_df[["FIRST_NAME", "LAST_NAME", "GENDER", "MARITAL_STATUS", "CHILDREN_COUNT", "BIRTHDAY_DATE", "E_MAIL", "PHONE_NUMBER"]]
+    cust_to_show = us_customer_df.head()
+    st.dataframe(cust_to_show)
+
     # select city
     city_option = st.selectbox(
     'Select a city',
@@ -80,12 +93,10 @@ with tab3:
 
     st.write('You selected:', total_orders_option)
 
-    # select number of days to next order
-    next_order_option = st.selectbox(
-    'Choose the duration until the next order',
-    (7, 14, 21, 28)) #even tho they selected 7, it will show all customers that are predicted to purchase 7 days or lesser
+    # input last purchase date
+    date = st.date_input("Enter the customer's last purchase date")
 
-    st.write('You selected:', next_order_option)
+    st.write('You selected:', date)
 
     # predict churn button
     if 'clicked' not in st.session_state:
@@ -97,35 +108,7 @@ with tab3:
     st.button('Predict', on_click=click_button)
 
     if st.session_state.clicked:
-   
-        # show percentage of churn vs not churn customers
-
-        import matplotlib.pyplot as plt
-        labels = 'Churn', 'Not Churn'
-        sizes = [30, 70]
-        explode = (0.3, 0) 
-
-        fig1, ax1 = plt.subplots()
-        ax1.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
-                shadow=True, startangle=90)
-        ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-
-        st.pyplot(fig1)   
-
-
-        # show the details of customers that will churn  
-        customer_df = session.table("NGEE_ANN_POLYTECHNIC_FROSTBYTE_DATA_SHARE.raw_customer.customer_loyalty")
-        us_customer_df = customer_df.filter(F.col("COUNTRY")=="United States")
-        us_customer_df = us_customer_df.to_pandas()
-        us_customer_df = us_customer_df[["FIRST_NAME", "LAST_NAME", "GENDER", "MARITAL_STATUS", "CHILDREN_COUNT", "BIRTHDAY_DATE", "E_MAIL", "PHONE_NUMBER"]]
-        cust_to_show = us_customer_df.head()
-        st.dataframe(cust_to_show)
-
-        search_gender = st.selectbox("Gender", ("Female", "Male", "Undisclosed"))
-
-        if st.button("Sort By"):
-            df_result_search = us_customer_df[us_customer_df['GENDER']==(search_gender)]
-            st.dataframe(df_result_search)
+        st.write("Customer is likely to churn"); 
         
         
 
