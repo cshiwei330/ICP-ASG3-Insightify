@@ -74,6 +74,13 @@ with tab2:
             city_int.append(city_dict[each]['CITY_FREQUENCY'])
         return city_int
     
+    # Load the 
+    load_Uplift_Churn_1M = load_Uplift_Churn_1M()
+    load_cluster_sales_1M = load_cluster_sales_1M()
+    city_input = get_city() # Select City
+    city_int = get_city_int(city_input)
+
+
     # Function to find uplift
     def find_uplift(pred_df,cluster_sales, uplift_predictions_duration):
         
