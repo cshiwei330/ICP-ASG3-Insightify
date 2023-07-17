@@ -48,13 +48,13 @@ with tab2:
     st.title('Predicting Customer Spending')
     st.subheader('Sub Title')
 
-    with open('./uplift/Uplift_1M.pkl', 'rb') as file:
-        uplift_1M = pickle.load(file)
-
     # Define function to load the uplift prediction model
     def load_Uplift_Churn_1M():
         data = pd.read_csv("./uplift/UpliftPrediction[1M].csv") 
         return data
+    
+    # Load the model
+    upliftdata = load_Uplift_Churn_1M()
     
     # Define function to load the cluster sales
     def load_cluster_sales_1M():
@@ -62,57 +62,83 @@ with tab2:
         return data
     def load_city_enc():
         data = pd.read_csv("./uplift/city_enc.csv") 
-        return data
+        city_dict = data.set_index('CITY').T.to_dict('dict')
+        return city_dict
 
-     # Define the user input functions    
+    # User inpput
     def get_city():
-        city_selection = st.multiselect("Select City:", options = list(load_city_enc()['CITY']))
+        city_selection = st.multiselect("Select City:", options = load_city_enc())
         city_list = list(city_selection)
         return city_list
+    def get_city_int(city_input):
+        # Load city mapping 
+        city_dict = load_city_enc()
+        city_int = [] # Store selected city frequency 
+        for each in city_input:
+            city_int.append(city_dict[each]['CITY_FREQUENCY'])
+        return city_int
 
-    # Function to find uplift
-    def find_uplift(pred_df,cluster_sales, uplift_predictions_duration):
-        
-            pred_df["PREDICT_SALES_ST"] = (pred_df[0] * cluster_sales['Cluster0MeanSales'][0]) + (pred_df[1] * cluster_sales['Cluster1MeanSales'][0])
-            
-            # Merge pred_df and filteredata
-            result_df = uplift_predictions_duration.merge(pred_df, left_on="INDEX", right_index=True, how='inner')
-            st.write(result_df)
-            
-            # Total sales
-            totalSales = result_df['PREDICT_SALES_ST'].sum()
-            # Total uplift
-            totalUplift = result_df['PREDICT_SALES_ST'].sum() - result_df['MONETARY_M3_HO'].sum()
-            # Calculation for change in revenue
-            percentUplift = ((result_df['PREDICT_SALES_ST'].sum()- result_df['MONETARY_M3_HO'].sum())/ result_df['MONETARY_M3_HO'].sum()) * 100
-            
-            st.write("In the next 2 weeks, the chosen group of customers will generate $ {: 0,.2f}".format(totalSales))
-            st.write("suggesting a $ {: 0,.2f} increase in revenue".format(totalUplift))
-            st.write("Which is a {:.2f}% increase".format(percentUplift))
-    
-    
-    # Define the user input fields
-    city_input = get_city()
-    
+    # Select City
+    city_input = get_city() 
+
+    # RFM input
+    col1, col2, col3 = st.columns(3)
+
+    # Recency
+    col1.subheader("Recency Cluster")
+    col1.caption("0 for less recent customers")
+    col1.caption("1 for recent customers")
+    rCluster =  col1.selectbox(label="Recency", options = upliftdata['CUST_REC_CLUSTER'].unique())
+
+    # Frequency
+    col2.subheader("Frequency Cluster")
+    col2.caption("0 for infrequent customers")
+    col2.caption("1 for moderately frequent customers")
+    col2.caption("2 for frequent customers")
+    rFrequency =  col2.selectbox(label="Frequency", options = upliftdata['CUST_FREQ_CLUSTER'].unique())
+
+    col3.subheader("Monetary Cluster")
+    col3.caption("0 for low spending customers")
+    col3.caption("1 for high spending customers")
+    rMonetary =  col3.selectbox(label="Monetary", options = upliftdata['CUST_MONETARY_CLUSTER'].unique())
+
+    # Filter csv data
+    def filterdata(data):
+        # Predicted total sales
+        predictedsales = data['PREDICT_SALES'].sum()
+
+        # Actual sales
+        actualsales = data['MONETARY_M3_HO'].sum()
+
+        # Uplift
+        uplift = predictedsales - actualsales
+
+        # Percent uplift
+        percentuplift = ((predictedsales - actualsales) / actualsales) * 100
+
+        st.write("In the next month, the selected group of customer will generate $ {:0,.2f}".format(predictedsales))
+        if (predictedsales > actualsales):
+            st.write("Which is an increase of $ {:0,.2f}".format(uplift))
+            st.write("from $ {:0,.2f}".format(actualsales))
+            st.write("This is an increase of {:.2f}% increase".format(percentuplift))
+        else:
+            st.write("Which is an decrease of $ {:0,.2f}".format(uplift) + "from $ {:0,.2f}".format(actualsales))
+            st.write("from $ {:0,.2f}".format(actualsales))
+            st.write("This is an decrease of {:.2f}% increase".format(percentuplift))
+
     if st.button('Predict Uplift'):
-        # Load the 1M Uplift Model
-        uplift_predictions_1M = load_Uplift_Churn_1M()
-        uplift_predictions_1M = pd.DataFrame(uplift_predictions_1M)
-        
-        city_df = load_city_enc()
-        city_selected = city_df[city_df['CITY'].isin(city_input)]
-        st.write(city_selected['CITY_FREQUENCY'])
-        
-        filtered_data = uplift_predictions_1M[(uplift_predictions_1M['CITY_FREQUENCY'].isin(city_selected['CITY_FREQUENCY'])) ]
-        filtered_data = uplift_predictions_1M.drop(columns=['CUSTOMER_ID','MONETARY_M3_HO','LTVCluster','PREDICTED_PROBA_0','PREDICTED_PROBA_1','PREDICT_SALES','INDEX'])
-                
-        # Make a prediction
-        pred = uplift_1M.predict_proba(filtered_data)
-        pred_df = pd.DataFrame(pred)
-        cluster_sales = load_cluster_sales_1M()
-        
-        # Use function to display cluster
-        find_uplift(pred_df, cluster_sales, uplift_predictions_1M)
+        # City input
+        city_int = get_city_int(city_input)
+
+        # Filtering data
+        filtered_data = upliftdata[(upliftdata['CITY_FREQUENCY'].isin(city_int)) & (upliftdata['CUST_REC_CLUSTER'] == rCluster) & (upliftdata['CUST_FREQ_CLUSTER'] == rFrequency) & (upliftdata['CUST_MONETARY_CLUSTER'] == rMonetary)]
+
+        filterdata(filtered_data)
+
+    with open('./uplift/Uplift_1M.pkl', 'rb') as file:
+        uplift_1M = pickle.load(file)
+
+    
 
     
 with tab3:
