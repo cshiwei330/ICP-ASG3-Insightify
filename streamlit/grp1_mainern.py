@@ -53,6 +53,9 @@ with tab2:
         data = pd.read_csv("./uplift/UpliftPrediction[1M].csv") 
         return data
     
+    # Load the model
+    upliftdata = load_Uplift_Churn_1M()
+    
     # Define function to load the cluster sales
     def load_cluster_sales_1M():
         data = pd.read_csv("./uplift/clusterSales[1M].csv") 
@@ -78,6 +81,30 @@ with tab2:
     # Select City
     city_input = get_city() 
 
+    # RFM input
+    col1, col2, col3 = st.columns(3)
+
+    # Recency
+    col1.subheader("Recency Cluster")
+    col1.caption("0 for less recent customers")
+    col1.caption("ecent cust")
+    col1.caption("1 for recent customers")
+    rCluster =  col1.selectbox(label="Recency", options = upliftdata['CUST_REC_CLUSTER'].unique())
+
+    # Frequency
+    col2.subheader("Frequency Cluster")
+    col2.caption("0 for infrequent customers")
+    col2.caption("1 for moderately frequent customers")
+    col2.caption("2 for frequent customers")
+    rFrequency =  col2.selectbox(label="Frequency", options = upliftdata['CUST_FREQ_CLUSTER'].unique())
+
+    col3.subheader("Monetary Cluster")
+    col3.caption("0 for low spending customers")
+    col3.caption("1 for high spending customers")
+    col3.write(" ")
+    rMonetary =  col3.selectbox(label="Monetary", options = upliftdata['CUST_MONETARY_CLUSTER'].unique())
+
+    # Filter csv data
     def filterdata(data):
         # Predicted total sales
         predictedsales = data['PREDICT_SALES'].sum()
@@ -101,9 +128,6 @@ with tab2:
             st.write("This is an decrease of {:.2f}% increase".format(percentuplift))
 
     if st.button('Predict Uplift'):
-        # Load the model
-        upliftdata = load_Uplift_Churn_1M()
-        
         # City input
         city_int = get_city_int(city_input)
 
