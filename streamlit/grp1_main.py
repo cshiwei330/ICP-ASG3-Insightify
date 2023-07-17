@@ -104,3 +104,5 @@ with tab5:
     if st.button("Get fruit load list"):
         pred = im.predict(final_df)
         st.text(pred)
+
+    #
