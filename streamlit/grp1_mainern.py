@@ -87,7 +87,6 @@ with tab2:
     # Recency
     col1.subheader("Recency Cluster")
     col1.caption("0 for less recent customers")
-    col1.caption("ecent cust")
     col1.caption("1 for recent customers")
     rCluster =  col1.selectbox(label="Recency", options = upliftdata['CUST_REC_CLUSTER'].unique())
 
@@ -101,7 +100,6 @@ with tab2:
     col3.subheader("Monetary Cluster")
     col3.caption("0 for low spending customers")
     col3.caption("1 for high spending customers")
-    col3.write(" ")
     rMonetary =  col3.selectbox(label="Monetary", options = upliftdata['CUST_MONETARY_CLUSTER'].unique())
 
     # Filter csv data
@@ -125,6 +123,7 @@ with tab2:
             st.write("This is an increase of {:.2f}% increase".format(percentuplift))
         else:
             st.write("Which is an decrease of $ {:0,.2f}".format(uplift) + "from $ {:0,.2f}".format(actualsales))
+            st.write("from $ {:0,.2f}".format(actualsales))
             st.write("This is an decrease of {:.2f}% increase".format(percentuplift))
 
     if st.button('Predict Uplift'):
@@ -132,7 +131,7 @@ with tab2:
         city_int = get_city_int(city_input)
 
         # Filtering data
-        filtered_data = upliftdata[upliftdata['CITY_FREQUENCY'].isin(city_int)]
+        filtered_data = upliftdata[(upliftdata['CITY_FREQUENCY'].isin(city_int)) & (upliftdata['CUST_REC_CLUSTER'] == rCluster) & (upliftdata['CUST_FREQ_CLUSTER'] == rFrequency) & (upliftdata['CUST_MONETARY_CLUSTER'] == rMonetary)]
 
         filterdata(filtered_data)
 
