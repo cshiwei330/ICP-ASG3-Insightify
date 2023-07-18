@@ -89,16 +89,15 @@ with tab3:
     
     # show percentage of churn and not churn of customer segment chosen using bar charts
     filtered_cust_seg = filter_cust_seg(cust_seg)
-    churn_label_mapping = {0: 'Churn', 1: 'Not Churn'}
+    churn_label_mapping = {0: 'Not Churn', 1: 'Churn'}
     filtered_cust_seg['CHURN_STATUS'] = filtered_cust_seg['CHURN_STATUS'].map(churn_label_mapping)
     cust_churn_bar = filtered_cust_seg['CHURN_STATUS'].value_counts()
     st.bar_chart(data = cust_churn_bar)
 
     # show information of churn and not churn customers
-    churn, not_churn = st.columns(2)
 
     # churn
-    churn.subheader("Information of Customers Likely to Churn")
+    st.write("Information of Customers Likely to Churn")
     churn_cust = filter_cust_churn("Churn")
 
     # monetary value
@@ -114,16 +113,16 @@ with tab3:
     max_churn_recency = str(math.floor(churn_cust['RECENCY_DAYS'].max()))
     avg_churn_recency = str(math.floor(churn_cust['RECENCY_DAYS'].mean()))
 
-    churn.caption("Range of Customers Likely to Churn Monetary Value: $" + min_churn_monetary + "-"+ max_churn_monetary)
-    churn.caption("Range of Customers Likely to Churn Total Orders: " + min_churn_order + "-"+ max_churn_order)
-    churn.caption("Range of Customers Likely to Churn Recency Days: " + min_churn_recency + "-"+ max_churn_recency)
+    st.caption("Range of Customers Likely to Churn Monetary Value: $" + min_churn_monetary + "-"+ max_churn_monetary)
+    st.caption("Range of Customers Likely to Churn Total Orders: " + min_churn_order + "-"+ max_churn_order)
+    st.caption("Range of Customers Likely to Churn Recency Days: " + min_churn_recency + "-"+ max_churn_recency)
     
-    churn.caption("Average of Customers Likely to Churn Monetary Value: $" + avg_churn_monetary)
-    churn.caption("Average of Customers Likely to Churn Total Orders: " + avg_churn_order)
-    churn.caption("Average of Customers Likely to Churn Recency Days: " + avg_churn_recency)
+    st.caption("Average of Customers Likely to Churn Monetary Value: $" + avg_churn_monetary)
+    st.caption("Average of Customers Likely to Churn Total Orders: " + avg_churn_order)
+    st.caption("Average of Customers Likely to Churn Recency Days: " + avg_churn_recency)
 
     # not churn
-    not_churn.subheader("Information of Customers not Likely to Churn")
+    st.write("Information of Customers not Likely to Churn")
     not_churn_cust = filter_cust_churn("Not Churn")
 
     # monetary value
@@ -139,13 +138,13 @@ with tab3:
     max_not_churn_recency = str(math.floor(not_churn_cust['RECENCY_DAYS'].max()))
     avg_not_churn_recency = str(math.floor(not_churn_cust['RECENCY_DAYS'].mean()))
 
-    not_churn.caption("Range of Customers not Likely to Churn Monetary Value: $" + min_not_churn_monetary + "-"+ max_not_churn_monetary)
-    not_churn.caption("Range of Customers not Likely to Churn Total Orders: " + min_not_churn_order + "-"+ max_not_churn_order)
-    not_churn.caption("Range of Customers not Likely to Churn Recency Days: " + min_not_churn_recency + "-"+ max_not_churn_recency)
+    st.caption("Range of Customers not Likely to Churn Monetary Value: $" + min_not_churn_monetary + "-"+ max_not_churn_monetary)
+    st.caption("Range of Customers not Likely to Churn Total Orders: " + min_not_churn_order + "-"+ max_not_churn_order)
+    st.caption("Range of Customers not Likely to Churn Recency Days: " + min_not_churn_recency + "-"+ max_not_churn_recency)
     
-    not_churn.caption("Average of Customers not Likely to Churn Monetary Value: $" + avg_not_churn_monetary)
-    not_churn.caption("Average of Customers not Likely to Churn Total Orders: " + avg_not_churn_order)
-    not_churn.caption("Average of Customers not Likely to Churn Recency Days: " + avg_not_churn_recency)
+    st.caption("Average of Customers not Likely to Churn Monetary Value: $" + avg_not_churn_monetary)
+    st.caption("Average of Customers not Likely to Churn Total Orders: " + avg_not_churn_order)
+    st.caption("Average of Customers not Likely to Churn Recency Days: " + avg_not_churn_recency)
 
     # show details of cust likely to churn 
     customer_df = session.table("NGEE_ANN_POLYTECHNIC_FROSTBYTE_DATA_SHARE.raw_customer.customer_loyalty")
@@ -164,7 +163,7 @@ with tab3:
        "text/csv",
        key='download-csv')
 
-   
+
 
     st.subheader('Predicting whether customers churn')
 
