@@ -48,6 +48,11 @@ with tab2:
     st.title('Predicting Customer Spending')
     st.subheader('Sub Title')
 
+    # Get customer details
+    customer_df = session.table("NGEE_ANN_POLYTECHNIC_FROSTBYTE_DATA_SHARE.raw_customer.customer_loyalty")
+    us_customer_df = customer_df.filter(F.col("COUNTRY") == "United States")
+    us_customer_df = us_customer_df.to_pandas()
+
     # Define function to load the uplift prediction model
     def load_Uplift_Churn_1M():
         data = pd.read_csv("./uplift/UpliftPrediction[1M].csv") 
@@ -122,7 +127,7 @@ with tab2:
             st.write("from $ {:0,.2f}".format(actualsales))
             st.write("This is an increase of {:.2f}% increase".format(percentuplift))
         else:
-            st.write("Which is an decrease of $ {:0,.2f}".format(uplift) + "from $ {:0,.2f}".format(actualsales))
+            st.write("Which is an decrease of $ {:0,.2f}".format(uplift))
             st.write("from $ {:0,.2f}".format(actualsales))
             st.write("This is an decrease of {:.2f}% increase".format(percentuplift))
 
@@ -134,6 +139,17 @@ with tab2:
         filtered_data = upliftdata[(upliftdata['CITY_FREQUENCY'].isin(city_int)) & (upliftdata['CUST_REC_CLUSTER'] == rCluster) & (upliftdata['CUST_FREQ_CLUSTER'] == rFrequency) & (upliftdata['CUST_MONETARY_CLUSTER'] == rMonetary)]
 
         filterdata(filtered_data)
+
+        lower = filtered_data[filtered_data['MONETARY_M3_HO'] > filtered_data['PREDICT_SALES']]
+
+        lower = lower.merge(us_customer_df, on = "CUSTOMER_ID", how = "left")
+
+        lower = lower[["CUSTOMER_ID", "FIRST_NAME", "LAST_NAME", "BIRTHDAY_DATE", "E_MAIL", "PHONE_NUMBER"]]
+
+        lower = lower.sort_values(by=['CUSTOMER_ID'])
+
+        # Show dataframe
+        st.write(lower)
 
     with open('./uplift/Uplift_1M.pkl', 'rb') as file:
         uplift_1M = pickle.load(file)
