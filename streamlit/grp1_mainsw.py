@@ -9,6 +9,7 @@ import plotly.express as px
 import pydeck as pdk
 import geopandas as gpd
 import shapely.geometry as shp
+import plotly.graph_objects as go
 
 # Import Snowflake modules
 from snowflake.snowpark import Session
@@ -44,71 +45,154 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(['SW', 'Ernest', 'Gwyneth', 'GF', 'KK'])
 with tab1:
     st.title('Predicting Future Sales')
     
-    # User Input 1: Select Customer Cluster
-    # Display the dropdown box
-    selected_cluster = st.selectbox(
-        "Select Customer Cluster:",
-        ("1 month", "2 months", "3 months")
-    )
+    ## Data Manipulation
     
-    # User Input 1: Select Timeframe
-    # Display the dropdown box
-    selected_months = st.selectbox(
-        "Select the range of months for prediction:",
-        ("1 month", "2 months", "3 months")
-    )
+    ## Define function to load the uplift prediction model
+    def load_uplift_1M():
+        data_1m = pd.read_csv("./sw_datasets/UpliftPrediction[1M].csv") 
+        data_1m = pd.DataFrame(data_1m)
+        return data_1m
+    
+    ## Define function to load the customer's cluster results
+    def load_cust_cluster():
+        data_cust_cluster = pd.read_csv("./sw_datasets/cluster_results.csv") 
+        data_cust_cluster = pd.DataFrame(data_cust_cluster)
+        return data_cust_cluster
+    
+    ## Create a DataFrame with city, longitude, and latitude information
+    city_coordinates = pd.DataFrame({
+        'CITY_FREQUENCY': [10613, 10016, 9261, 9122, 7288],
+        'CITY': ['San Mateo', 'New York City', 'Boston', 'Denver', 'Seattle'],
+        'LATITUDE': [37.5625, 40.7128, 42.3601, 39.7392, 47.6062],
+        'LONGITUDE': [-122.3229, -74.0060, -71.0589, -104.9903, -122.3321]
+    })
 
-    # User Input 2:
-    # Display checkboxes for key metrics
-    st.write("Select the metrics to view:")
-    show_total_revenue = st.checkbox("Total Predicted Revenue")
-    show_avg_spending = st.checkbox("Average Predicted Spending per Customer")
+    ## Define user input functions
+    # User Input 1: Select Customer Cluster
+    def get_cust_cluster():
+        # Display the dropdown box
+        cluster_selection = ['1 - Low Value', '2 - Middle Value', '3 - High Value']
+        selected_cluster = st.selectbox(
+            "Select Customer Cluster:", cluster_selection)
+        if selected_cluster == '1 - Low Value':
+            return 1
+        elif selected_cluster == '2 - Middle Value':
+            return 0
+        else:
+            return 2
+    
+    # User Input 2: Select Timeframe
+    def get_timeframe():
+        # Display the dropdown box
+        timeframe_selection = ['1 month', '2 months', '3 months']
+        selected_months = st.selectbox(
+            "Select the range of months for prediction:", timeframe_selection)
+        return selected_months
+    
+    # User Input 3: Select Metric
+    def get_selected_metrics():
+        # Display checkboxes for key metrics
+        st.write("Select the metrics to view:")
+        show_total_revenue = st.checkbox("Total Predicted Revenue")
+        show_avg_spending = st.checkbox("Average Predicted Spending per Customer")
+        selected_metrics = []
+        if show_total_revenue:
+            selected_metrics.append("0")
+        if show_avg_spending:
+            selected_metrics.append("1")
+        return selected_metrics
 
-    # User Input 3:
+    ## Get user inputs
+    cluster_input = get_cust_cluster()
+    timeframe_input = get_timeframe()
+    metrics_input = get_selected_metrics()
+    
     # Display the "Predict" button
     if st.button("Predict"):
-        # Create the dummy data
-        predicted_sales_data = pd.DataFrame({
-            "city": ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"],
-            "total_revenue": [100000, 80000, 60000, 40000, 30000],
-            "avg_spending": [500, 400, 300, 200, 100],
-            "latitude": [40.7127, 34.0522, 41.8781, 29.7604, 33.4484],
-            "longitude": [-74.0059, -118.2437, -87.6298, -95.3693, -112.0740]
-        })
+        if (timeframe_input == '1 month'):
+            ## Merge the two dataframes based on customerID
+            ## Load the uplift prediction data and customer cluster data
+            data_uplift_1M = load_uplift_1M()
+            data_cust_cluster = load_cust_cluster()
 
-        # Create a GeoDataFrame
-        predicted_sales_geo_df = gpd.GeoDataFrame(
-            predicted_sales_data,
-            geometry=[shp.Point(lon, lat) for lon, lat in zip(predicted_sales_data["longitude"], predicted_sales_data["latitude"])]
-        )
+            ## Merge the two dataframes based on customerID
+            merged_data = pd.merge(data_uplift_1M, data_cust_cluster, on='CUSTOMER_ID')
+            
+            ## Filter the data based on cluster_input
+            filtered_data_cluster = merged_data[merged_data['CLUSTER'] == cluster_input]
+            filtered_data_city = filtered_data_cluster.groupby('CITY_FREQUENCY').aggregate(sum)
+            
+            ## Keep only columns that are useful
+            filtered_data_city = filtered_data_city[['PREDICT_SALES', 'CLUSTER', 'MONETARY_M3_HO']]
+            
+            # Merge city_coordinates with filtered_data_city
+            final_df = pd.merge(filtered_data_city, city_coordinates, on='CITY_FREQUENCY')
+            
+            # Round the values to two decimal places
+            final_df['PREDICT_SALES_Rounded'] = final_df['PREDICT_SALES'].round(2)
+            final_df['AVG_SPENDING_Rounded'] = (final_df['PREDICT_SALES'] / final_df['CLUSTER']).round(2)
+            final_df['UPLIFT_PERCENTAGE'] = ((final_df['PREDICT_SALES']- final_df['MONETARY_M3_HO'])/ final_df['MONETARY_M3_HO']) * 100
+            
+            st.write(final_df)
+            # Create the map figure
+            fig = go.Figure()
 
-        # Create a map of USA
-        cities = predicted_sales_geo_df["city"].unique()
-        locations = predicted_sales_geo_df[["longitude", "latitude"]].values
+            # Add the map trace
+            fig.add_trace(
+                go.Scattergeo(
+                    locationmode='USA-states',
+                    lon=final_df['LONGITUDE'],
+                    lat=final_df['LATITUDE'],
+                    text=final_df['CITY'],
+                    customdata=final_df[['PREDICT_SALES_Rounded', 'AVG_SPENDING_Rounded', 'UPLIFT_PERCENTAGE']],
+                    hovertemplate='<b>%{text}</b><br><br>' +
+                                'Total Predicted Revenue: $%{customdata[0]:.2f}<br>' +
+                                'Average Predicted Spending per Customer: $%{customdata[1]:.2f}<br>' +
+                                'Percentage Uplift: %{customdata[2]:.2f}%',
+                    mode='markers',
+                    marker=dict(
+                        size=10,
+                        color='blue',
+                        opacity=0.8
+                    )
+                )
+            )
 
-        # Create a layer for the map
-        layer = pdk.Layer(
-            "ScatterplotLayer",
-            data=predicted_sales_geo_df,
-            get_position="geometry.coordinates",
-            get_fill_color="total_revenue",
-            get_radius="avg_spending",
-        )
+            # Customize the layout
+            fig.update_layout(
+                title='Predicted Sales by City',
+                geo=dict(
+                    scope='usa',
+                    showland=True,
+                    landcolor='rgb(217, 217, 217)',
+                    subunitcolor='rgb(255, 255, 255)',
+                    countrycolor='rgb(255, 255, 255)',
+                    showlakes=True,
+                    lakecolor='rgb(255, 255, 255)',
+                    showsubunits=True,
+                    showcountries=True,
+                    resolution=110,
+                    projection=dict(type='albers usa'),
+                    lonaxis=dict(
+                        showgrid=True,
+                        gridwidth=0.5,
+                        range=[-125.0, -66.0],
+                        dtick=5
+                    ),
+                    lataxis=dict(
+                        showgrid=True,
+                        gridwidth=0.5,
+                        range=[25.0, 50.0],
+                        dtick=5
+                    )
+                )
+            )
 
-        # Render the map
-        view_state = pdk.ViewState(latitude=37, longitude=-95, zoom=5)
-        st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view_state))
+            # Display the map in the Streamlit tab
+            st.plotly_chart(fig)
+            
+            
 
-        # Add a hover handler to the map
-        def hover(info):
-            city = info.pick["city"]
-            if show_total_revenue:
-                st.text(f"Total Predicted Revenue for {city}: {info.pick['total_revenue']}")
-            if show_avg_spending:
-                st.text(f"Average Predicted Spending per Customer for {city}: {info.pick['avg_spending']}")
-
-        layer.hover_callback = hover
-    
 with tab2:
     st.title('Title')
     st.subheader('Sub Title')
