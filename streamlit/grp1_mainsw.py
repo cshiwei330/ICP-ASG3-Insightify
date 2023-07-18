@@ -44,7 +44,14 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs(['SW', 'Ernest', 'Gwyneth', 'GF', 'KK'])
 with tab1:
     st.title('Predicting Future Sales')
     
-    # User Input 1:
+    # User Input 1: Select Customer Cluster
+    # Display the dropdown box
+    selected_cluster = st.selectbox(
+        "Select Customer Cluster:",
+        ("1 month", "2 months", "3 months")
+    )
+    
+    # User Input 1: Select Timeframe
     # Display the dropdown box
     selected_months = st.selectbox(
         "Select the range of months for prediction:",
