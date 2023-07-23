@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import datetime
+from datetime import date
 import pickle
 import json
 import math
@@ -11,7 +12,7 @@ from snowflake.snowpark import Session
 import snowflake.snowpark.functions as F
 import snowflake.snowpark.types as T
 from snowflake.snowpark import Window
-from snowflake.snowpark.functions import col
+from snowflake.snowpark.functions import col, date_add, to_date, desc, row_number
 from datetime import datetime
 
 # Get account credentials from a json file
@@ -73,6 +74,32 @@ with tab3:
     def convert_df(df):
        return df.to_csv(index=False).encode('utf-8')
     
+    # inputs for model
+    def model_inputs():
+        #calculate average of trans_datediff1
+        trans_datediff1 = next_purchase_cust_seg['TRANS_DATEDIFF1'].mean()
+
+        #calculate average of trans_datedif2
+        trans_datediff2 = next_purchase_cust_seg['TRANS_DATEDIFF2'].mean()
+
+        #calculate average of avg(days_between)
+        avg_days_between = next_purchase_cust_seg['AVG(DAYS_BETWEEN)'].mean()
+   
+        #calculate average of min(days_between)
+        min_days_between = next_purchase_cust_seg['MIN(DAYS_BETWEEN)'].mean()
+
+        #calculate average of max(days_between)
+        max_days_between= next_purchase_cust_seg['MAX(DAYS_BETWEEN)'].mean()
+
+        #calculate monetary value 
+        monetary = int(spending_option) / int(years_with_us_option)
+
+        #calculate frequency
+        frequency = int(total_orders_option) / int(years_with_us_option)
+
+        #calculate recency
+        recency = (today_date - date).days
+    
     next_purchase_cust_seg = load_next_purchase_cust_seg()
     next_purchase_cust_seg.rename(columns={'CHURN': 'CHURN_STATUS'}, inplace=True)
 
@@ -101,9 +128,9 @@ with tab3:
     churn_cust = filter_cust_churn("Churn")
 
     # monetary value
-    min_churn_monetary = str(min(round(churn_cust['MONETARY_VALUE'], 2)))
-    max_churn_monetary = str(max(round(churn_cust['MONETARY_VALUE'], 2)))
-    avg_churn_monetary = str(round(churn_cust['MONETARY_VALUE'].mean(),2))
+    min_churn_spent = str(min(round(churn_cust['TOTAL_SPENT'], 2)))
+    max_churn_spent = str(max(round(churn_cust['TOTAL_SPENT'], 2)))
+    avg_churn_spent = str(round(churn_cust['TOTAL_SPENT'].mean(),2))
     # total order
     min_churn_order = str(math.floor(churn_cust['TOTAL_ORDER'].min()))
     max_churn_order = str(math.floor(churn_cust['TOTAL_ORDER'].max()))
@@ -113,11 +140,11 @@ with tab3:
     max_churn_recency = str(math.floor(churn_cust['RECENCY_DAYS'].max()))
     avg_churn_recency = str(math.floor(churn_cust['RECENCY_DAYS'].mean()))
 
-    st.caption("Range of Customers Likely to Churn Monetary Value: $" + min_churn_monetary + "-"+ max_churn_monetary)
+    st.caption("Range of Customers Likely to Churn Total Spent: $" + min_churn_spent + "-"+ max_churn_spent)
     st.caption("Range of Customers Likely to Churn Total Orders: " + min_churn_order + "-"+ max_churn_order)
     st.caption("Range of Customers Likely to Churn Recency Days: " + min_churn_recency + "-"+ max_churn_recency)
     
-    st.caption("Average of Customers Likely to Churn Monetary Value: $" + avg_churn_monetary)
+    st.caption("Average of Customers Likely to Churn Total Spent: $" + avg_churn_spent)
     st.caption("Average of Customers Likely to Churn Total Orders: " + avg_churn_order)
     st.caption("Average of Customers Likely to Churn Recency Days: " + avg_churn_recency)
 
@@ -125,10 +152,10 @@ with tab3:
     st.write("Information of Customers not Likely to Churn")
     not_churn_cust = filter_cust_churn("Not Churn")
 
-    # monetary value
-    min_not_churn_monetary = str(min(round(not_churn_cust['MONETARY_VALUE'], 2)))
-    max_not_churn_monetary = str(max(round(not_churn_cust['MONETARY_VALUE'], 2)))
-    avg_not_churn_monetary = str(round(not_churn_cust['MONETARY_VALUE'].mean(),2))
+    # total spent
+    min_not_churn_spent = str(min(round(not_churn_cust['TOTAL_SPENT'], 2)))
+    max_not_churn_spent = str(max(round(not_churn_cust['TOTAL_SPENT'], 2)))
+    avg_not_churn_spent = str(round(not_churn_cust['TOTAL_SPENT'].mean(),2))
     # total order
     min_not_churn_order = str(math.floor(not_churn_cust['TOTAL_ORDER'].min()))
     max_not_churn_order = str(math.floor(not_churn_cust['TOTAL_ORDER'].max()))
@@ -138,18 +165,19 @@ with tab3:
     max_not_churn_recency = str(math.floor(not_churn_cust['RECENCY_DAYS'].max()))
     avg_not_churn_recency = str(math.floor(not_churn_cust['RECENCY_DAYS'].mean()))
 
-    st.caption("Range of Customers not Likely to Churn Monetary Value: $" + min_not_churn_monetary + "-"+ max_not_churn_monetary)
+    st.caption("Range of Customers not Likely to Churn Total Spent: $" + min_not_churn_spent + "-"+ max_not_churn_spent)
     st.caption("Range of Customers not Likely to Churn Total Orders: " + min_not_churn_order + "-"+ max_not_churn_order)
     st.caption("Range of Customers not Likely to Churn Recency Days: " + min_not_churn_recency + "-"+ max_not_churn_recency)
     
-    st.caption("Average of Customers not Likely to Churn Monetary Value: $" + avg_not_churn_monetary)
+    st.caption("Average of Customers not Likely to Churn Total Spent: $" + avg_not_churn_spent)
     st.caption("Average of Customers not Likely to Churn Total Orders: " + avg_not_churn_order)
     st.caption("Average of Customers not Likely to Churn Recency Days: " + avg_not_churn_recency)
 
     # show details of cust likely to churn 
+    st.write("Details of customers likely to churn")
     customer_df = session.table("NGEE_ANN_POLYTECHNIC_FROSTBYTE_DATA_SHARE.raw_customer.customer_loyalty")
-    us_customer_df = customer_df.filter(F.col("COUNTRY")=="United States")
-    us_customer_df = us_customer_df.to_pandas()
+    us_customer_df_sf = customer_df.filter(F.col("COUNTRY")=="United States")
+    us_customer_df = us_customer_df_sf.to_pandas()
     us_customer_df = us_customer_df[us_customer_df['CUSTOMER_ID'].isin(churn_cust['CUSTOMER_ID'])]
     cust_to_show = us_customer_df[["FIRST_NAME", "LAST_NAME", "GENDER", "MARITAL_STATUS", "CHILDREN_COUNT", "BIRTHDAY_DATE", "E_MAIL", "PHONE_NUMBER"]]
     st.dataframe(cust_to_show)
@@ -167,38 +195,42 @@ with tab3:
 
     st.subheader('Predicting whether customers churn')
 
-    # select city
-    city_option = st.selectbox(
-    'Select a city',
-    ('San Mateo', 'Denver', 'Seattle', 'New York City', 'Boston'))
+    # loading model
+    #with open('./churn/NextPurchase.pkl', 'wb') as file:
+    #    np = pickle.load(file)
 
-    st.write('You selected:', city_option)
+    # total spending input
+    spending_option = st.number_input("Input Total Spending of Customer")
 
-    # monetary value slider
-    money_option = st.slider(
-    'Select the range of monetary value of customer',
-    150, 1350)
+    st.write('You selected:', spending_option)
 
-    st.write('You selected:', money_option)
-
-    # years with us slider
-    years_with_us_option = st.slider(
-    'Select the range of years of customer with Tasty Bytes',
-    1, 4)
+    # years with us input
+    max_year = datetime.today().year - 2019
+    years_list = [str(year) for year in range(0, max_year + 1)]
+    years_with_us_option = st.selectbox(
+    'Select the Number of Years the Customer has been with Tasty Bytes',
+    years_list
+)
 
     st.write('You selected:', years_with_us_option)
 
     # select no of orders
-    total_orders_option = st.slider(
-    'Select the range of orders of customer',
-    18, 90)
+    total_orders_option = st.number_input("Input Number of Orders")
 
     st.write('You selected:', total_orders_option)
 
     # input last purchase date
-    date = st.date_input("Enter the customer's last purchase date")
+    first_date = datetime(2019, 1, 1)
+    today_date = datetime(2022, 11, 1)
+    date = st.date_input("Enter the customer's last purchase date", first_date, first_date,today_date,today_date)
 
     st.write('You selected:', date)
+
+    
+
+
+
+
 
     # predict churn button
     if 'clicked' not in st.session_state:
