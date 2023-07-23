@@ -46,7 +46,12 @@ with tab1:
     
 with tab2:
     st.title('Predicting Customer Spending')
-    st.subheader('Sub Title')
+    st.subheader('Based on RFM')
+
+    # Get customer details
+    customer_df = session.table("NGEE_ANN_POLYTECHNIC_FROSTBYTE_DATA_SHARE.raw_customer.customer_loyalty")
+    us_customer_df = customer_df.filter(F.col("COUNTRY") == "United States")
+    us_customer_df = us_customer_df.to_pandas()
 
     # Define function to load the uplift prediction model
     def load_Uplift_Churn_1M():
@@ -84,22 +89,32 @@ with tab2:
     # RFM input
     col1, col2, col3 = st.columns(3)
 
+    # Setting the input
+    cluster_mapping_r = {0: 'Old Customer', 1: 'Recent Customers'}
+    upliftdata['CUST_REC_CLUSTER'] = upliftdata['CUST_REC_CLUSTER'].map(cluster_mapping_r)
+
+    cluster_mapping_f = {0: 'Infrequent Customer', 1: 'Moderately Frequent Customers', 2: 'Frequent Customers'}
+    upliftdata['CUST_FREQ_CLUSTER'] = upliftdata['CUST_FREQ_CLUSTER'].map(cluster_mapping_f)
+
+    cluster_mapping_m = {0: 'Low Spending Customer', 1: 'High Spending Customers'}
+    upliftdata['CUST_MONETARY_CLUSTER'] = upliftdata['CUST_MONETARY_CLUSTER'].map(cluster_mapping_m)
+
     # Recency
     col1.subheader("Recency Cluster")
-    col1.caption("0 for less recent customers")
-    col1.caption("1 for recent customers")
+    #col1.caption("0 for less recent customers")
+    #col1.caption("1 for recent customers")
     rCluster =  col1.selectbox(label="Recency", options = upliftdata['CUST_REC_CLUSTER'].unique())
 
     # Frequency
     col2.subheader("Frequency Cluster")
-    col2.caption("0 for infrequent customers")
-    col2.caption("1 for moderately frequent customers")
-    col2.caption("2 for frequent customers")
+    #col2.caption("0 for infrequent customers")
+    #col2.caption("1 for moderately frequent customers")
+    #col2.caption("2 for frequent customers")
     rFrequency =  col2.selectbox(label="Frequency", options = upliftdata['CUST_FREQ_CLUSTER'].unique())
 
     col3.subheader("Monetary Cluster")
-    col3.caption("0 for low spending customers")
-    col3.caption("1 for high spending customers")
+    #col3.caption("0 for low spending customers")
+    #col3.caption("1 for high spending customers")
     rMonetary =  col3.selectbox(label="Monetary", options = upliftdata['CUST_MONETARY_CLUSTER'].unique())
 
     # Filter csv data
@@ -116,15 +131,15 @@ with tab2:
         # Percent uplift
         percentuplift = ((predictedsales - actualsales) / actualsales) * 100
 
-        st.write("In the next month, the selected group of customer will generate $ {:0,.2f}".format(predictedsales))
+        st.write("In the next month, the selected group of customer will generate ${:0,.2f}".format(predictedsales))
         if (predictedsales > actualsales):
-            st.write("Which is an increase of $ {:0,.2f}".format(uplift))
-            st.write("from $ {:0,.2f}".format(actualsales))
-            st.write("This is an increase of {:.2f}% increase".format(percentuplift))
+            st.write("Which is an increase of ${:0,.2f}".format(uplift))
+            st.write("from ${:0,.2f}".format(actualsales))
+            st.write("This is an increase of {:.2f}%".format(percentuplift))
         else:
-            st.write("Which is an decrease of $ {:0,.2f}".format(uplift) + "from $ {:0,.2f}".format(actualsales))
-            st.write("from $ {:0,.2f}".format(actualsales))
-            st.write("This is an decrease of {:.2f}% increase".format(percentuplift))
+            st.write("Which is an decrease of ${:0,.2f}".format(uplift))
+            st.write("from ${:0,.2f}".format(actualsales))
+            st.write("This is an decrease of {:.2f}%".format(percentuplift))
 
     if st.button('Predict Uplift'):
         # City input
@@ -134,6 +149,17 @@ with tab2:
         filtered_data = upliftdata[(upliftdata['CITY_FREQUENCY'].isin(city_int)) & (upliftdata['CUST_REC_CLUSTER'] == rCluster) & (upliftdata['CUST_FREQ_CLUSTER'] == rFrequency) & (upliftdata['CUST_MONETARY_CLUSTER'] == rMonetary)]
 
         filterdata(filtered_data)
+
+        lower = filtered_data[filtered_data['MONETARY_M3_HO'] > filtered_data['PREDICT_SALES']]
+
+        lower = lower.merge(us_customer_df, on = "CUSTOMER_ID", how = "left")
+
+        lower = lower[["CUSTOMER_ID", "FIRST_NAME", "LAST_NAME", "BIRTHDAY_DATE", "E_MAIL", "PHONE_NUMBER"]]
+
+        lower = lower.sort_values(by=['CUSTOMER_ID'])
+
+        # Show dataframe
+        st.write(lower)
 
     with open('./uplift/Uplift_1M.pkl', 'rb') as file:
         uplift_1M = pickle.load(file)
