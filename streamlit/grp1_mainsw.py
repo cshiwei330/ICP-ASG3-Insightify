@@ -81,7 +81,9 @@ with tab1:
     # User Input 1: Select Customer Cluster
     def get_cust_cluster():
         # Display the dropdown box
-        cluster_selection = ['1 - Low Value', '2 - Middle Value', '3 - High Value']
+        cluster_selection = ['1 - Low Value (Customers who buy less frequently and generate lower sales)', 
+                             '2 - Middle Value (Customers who make average purchases)', 
+                             '3 - High Value (Customers who make frequent purchases and generate higher sales.)']
         selected_cluster = st.selectbox(
             "Select Customer Cluster:", cluster_selection)
         if selected_cluster == '1 - Low Value':
