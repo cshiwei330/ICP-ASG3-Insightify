@@ -142,7 +142,10 @@ with tab3:
     st.header('Predicting whether customers churn')
 
     # loading model
-    with open('./churn/NextPurchase.pkl', 'rb') as file:
+    #with open('./churn/NextPurchase.pkl', 'rb') as file:
+    #    npm = pickle.load(file)
+
+    with open('./churn/NextPurchaseUnscaled.pkl', 'rb') as file:
         npm = pickle.load(file)
 
     # total spending input
@@ -184,6 +187,7 @@ with tab3:
     if st.session_state.clicked:
         #calculate average of trans_datediff1
         trans_datediff1 = next_purchase_cust_seg['TRANS_DATEDIFF1'].mean()
+        
 
         #calculate average of trans_datedif2
         trans_datediff2 = next_purchase_cust_seg['TRANS_DATEDIFF2'].mean()
@@ -249,14 +253,15 @@ with tab3:
         #making of dataframe to input to model 
         data = [[spending_option, years_with_us_option, monetary, frequency, total_orders_option, recency, max_days_between, min_days_between, avg_days_between, trans_datediff1, trans_datediff2, recency_cluster, frequency_cluster, monetary_cluster, overall_score]]
         final = pd.DataFrame(data, columns = ['TOTAL_SPENT','YEARS_WITH_US','MONETARY_VALUE','CUSTOMER_FREQUENCY','TOTAL_ORDER','RECENCY_DAYS','MAX(DAYS_BETWEEN)','MIN(DAYS_BETWEEN)','AVG(DAYS_BETWEEN)','TRANS_DATEDIFF1','TRANS_DATEDIFF2','CUST_REC_CLUSTER','CUST_FREQ_CLUSTER','CUST_MONETARY_CLUSTER','OVERALL_SCORE'])
-        temp = next_purchase_cust_seg.drop(columns=['CUSTOMER_ID', 'CHURN_STATUS', 'PREDICTED','TARGET','CLUSTER', 'Unnamed: 0'])
-        temp = pd.concat([temp, final.iloc[[0]]], ignore_index=True)
+        #temp = next_purchase_cust_seg.drop(columns=['CUSTOMER_ID', 'CHURN_STATUS', 'PREDICTED','TARGET','CLUSTER', 'Unnamed: 0'])
+        #temp = pd.concat([temp, final.iloc[[0]]], ignore_index=True)
         
-        scaler = StandardScaler()
-        scaler.fit(temp)
-        final = scaler.transform(temp)
+        #scaler = StandardScaler()
+        #scaler.fit(temp)
+        #final = scaler.transform(temp)
 
         pred = npm.predict(final)
+        #st.write(pred)
         if float(pred[-1]) <= 14:
             st.write("Customer is not likely to churn")
         else:
