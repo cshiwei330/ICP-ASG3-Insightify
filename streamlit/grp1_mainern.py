@@ -72,7 +72,7 @@ with tab2:
 
     # User inpput
     def get_city():
-        city_selection = st.multiselect("Select City:", options = load_city_enc())
+        city_selection = st.multiselect("Select City*", options = load_city_enc())
         city_list = list(city_selection)
         return city_list
     def get_city_int(city_input):
@@ -93,7 +93,7 @@ with tab2:
     cluster_mapping_r = {0: 'Old Customer', 1: 'Recent Customers'}
     upliftdata['CUST_REC_CLUSTER'] = upliftdata['CUST_REC_CLUSTER'].map(cluster_mapping_r)
 
-    cluster_mapping_f = {0: 'Infrequent Customer', 1: 'Moderately Frequent Customers', 2: 'Frequent Customers'}
+    cluster_mapping_f = {0: 'Moderately Frequent Customer', 1: 'Infrequent Customers', 2: 'Frequent Customers'}
     upliftdata['CUST_FREQ_CLUSTER'] = upliftdata['CUST_FREQ_CLUSTER'].map(cluster_mapping_f)
 
     cluster_mapping_m = {0: 'Low Spending Customer', 1: 'High Spending Customers'}
@@ -131,14 +131,14 @@ with tab2:
         # Percent uplift
         percentuplift = ((predictedsales - actualsales) / actualsales) * 100
 
-        st.write("In the next month, the selected group of customer will generate ${:0,.2f}".format(predictedsales))
+        st.write("In the next month, the selected group of customer will generate ${:0,.2f}.".format(predictedsales))
         if (predictedsales > actualsales):
-            st.write("Which is an increase of ${:0,.2f}".format(uplift))
-            st.write("from ${:0,.2f}".format(actualsales))
-            st.write("This is an increase of {:.2f}%".format(percentuplift))
+            st.write("This is an increase by ${:0,.2f}".format(uplift) + " which is an increase of {:.2f}%.".format(percentuplift))
+            #st.write("from ${:0,.2f}".format(actualsales))
+            #st.write("This is an increase of {:.2f}%".format(percentuplift))
         else:
             st.write("Which is an decrease of ${:0,.2f}".format(uplift))
-            st.write("from ${:0,.2f}".format(actualsales))
+            #st.write("from ${:0,.2f}".format(actualsales))
             st.write("This is an decrease of {:.2f}%".format(percentuplift))
 
     if st.button('Predict Uplift'):
@@ -150,6 +150,13 @@ with tab2:
 
         filterdata(filtered_data)
 
+    if st.checkbox('Show customers that did not contribute to the uplift'):
+        # City input
+        city_int = get_city_int(city_input)
+
+        # Filtering data
+        filtered_data = upliftdata[(upliftdata['CITY_FREQUENCY'].isin(city_int)) & (upliftdata['CUST_REC_CLUSTER'] == rCluster) & (upliftdata['CUST_FREQ_CLUSTER'] == rFrequency) & (upliftdata['CUST_MONETARY_CLUSTER'] == rMonetary)]
+
         lower = filtered_data[filtered_data['MONETARY_M3_HO'] > filtered_data['PREDICT_SALES']]
 
         lower = lower.merge(us_customer_df, on = "CUSTOMER_ID", how = "left")
@@ -157,12 +164,84 @@ with tab2:
         lower = lower[["CUSTOMER_ID", "FIRST_NAME", "LAST_NAME", "BIRTHDAY_DATE", "E_MAIL", "PHONE_NUMBER"]]
 
         lower = lower.sort_values(by=['CUSTOMER_ID'])
-
-        # Show dataframe
         st.write(lower)
 
+    # Load the model
     with open('./uplift/Uplift_1M.pkl', 'rb') as file:
         uplift_1M = pickle.load(file)
+
+    st.subheader("Based on Specific Value")
+
+    # Years with us
+    timeframe_value =  list(range(0, 5))
+    years_pickle = st.select_slider("Years as Member",options=timeframe_value)
+    st.write('You selected:', years_pickle)
+
+    # Recency
+    recency_value = list(range(0, 151))
+    recency_pickle = st.select_slider("Days since last purchase", options=recency_value)
+    st.write('You selected:', recency_pickle)
+
+    # Frequent
+    frequency_value = list(range(0, 51))
+    frequency_pickle = st.select_slider("Number of orders yearly", options=frequency_value)
+    st.write('You selected:', frequency_pickle)
+
+    # Monetary
+    monetary_value = list(range(0, 1501))
+    monetary_pickle = st.select_slider("Total amount spent yearly", options=monetary_value)
+    st.write('You selected:', monetary_pickle)
+
+    # Total Spent
+    totalspent_pickle = monetary_pickle * years_pickle
+
+    # Dataframe
+    data = {
+        'YEARS_WITH_US': [5],
+        'MONETARY_VALUE': [monetary_pickle],
+        'TOTAL_SPENT': [totalspent_pickle],
+        'CUSTOMER_FREQUENCY': [frequency_pickle],
+        'TOTAL_ORDER': [5],
+        'RECENCY_DAYS': [recency_pickle],
+        'CITY_FREQUENCY': [get_city_int(city_input)],
+        'ORDER_TOTAL_S1': [5],
+        'ORDER_TOTAL_S2': [5],
+        'ORDER_TOTAL_S3': [5],
+        'CHANGE_FROM_S1_TO_S2': [5],
+        'CHANGE_FROM_S2_TO_S3': [5]
+    }
+
+    final = pd.DataFrame(data)
+
+    if (recency_pickle <21):
+        final['CUST_REC_CLUSTER'] = 1
+    else:
+        final['CUST_REC_CLUSTER'] = 0
+
+    if (frequency_pickle <= 16):
+        final['CUST_FREQ_CLUSTER'] = 1
+    elif (frequency_pickle > 16 and frequency_pickle <21):
+        final['CUST_FREQ_CLUSTER'] = 0
+    else:
+        final['CUST_FREQ_CLUSTER'] = 2
+    
+    if (monetary_pickle <= 680):
+        final['CUST_MONETARY_CLUSTER'] = 0
+    else:
+        final['CUST_MONETARY_CLUSTER'] = 1
+
+    final['OVERALL_SCORE'] = final['CUST_REC_CLUSTER'] + final['CUST_FREQ_CLUSTER'] + final['CUST_MONETARY_CLUSTER']
+
+    if st.button('Test'):
+        st.write(final)
+        st.write(final.dtypes)
+    
+
+
+
+
+
+
 
     
 
