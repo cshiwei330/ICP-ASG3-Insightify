@@ -61,6 +61,15 @@ with tab1:
         # Return merged data
         return data_1m
     
+    def load_uplift_2M():
+        data_2m = pd.read_csv("./sw_datasets/UpliftPrediction[2M].csv") 
+        data_2m = pd.DataFrame(data_2m)
+        # Load customer cluster data
+        data_cust_cluster = load_cust_cluster()
+        data_2m = pd.merge(data_2m, data_cust_cluster, on='CUSTOMER_ID')
+        # Return merged data
+        return data_2m
+    
     def load_uplift_3M():
         data_3m = pd.read_csv("./sw_datasets/UpliftPrediction[3M].csv") 
         data_3m = pd.DataFrame(data_3m)
@@ -205,6 +214,16 @@ with tab1:
             
             # Filter and process the data based on user input
             final_df = process_data(data_1M, cluster_input)
+            
+            # Display the map in the Streamlit tab
+            display_map(final_df)
+            
+        else if (timeframe_input == '2 months'):
+            ## Load data based on selected timeframe
+            data_2M = load_uplift_2M()
+            
+            # Filter and process the data based on user input
+            final_df = process_data(data_2M, cluster_input)
             
             # Display the map in the Streamlit tab
             display_map(final_df)
