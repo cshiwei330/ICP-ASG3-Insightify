@@ -89,6 +89,14 @@ with tab1:
         predicted_sales = data['PREDICT_SALES'].sum().round(2)
         return predicted_sales
     
+    ## Create a DataFrame with city, longitude, and latitude information
+    city_coordinates = pd.DataFrame({
+        'CITY_FREQUENCY': [10613, 10016, 9261, 9122, 7288],
+        'CITY': ['San Mateo', 'New York City', 'Boston', 'Denver', 'Seattle'],
+        'LATITUDE': [37.5625, 40.7128, 42.3601, 39.7392, 47.6062],
+        'LONGITUDE': [-122.3229, -74.0060, -71.0589, -104.9903, -122.3321]
+    })
+    
     ## Visualisation 1: Display bar chart 
     # Create dataframe that stores sales values
     nov = get_predicted_sales(load_uplift_1M())
@@ -170,13 +178,8 @@ with tab1:
     # Display the pie chart in the Streamlit tab
     st.plotly_chart(fig_2)
     
-    ## Create a DataFrame with city, longitude, and latitude information
-    city_coordinates = pd.DataFrame({
-        'CITY_FREQUENCY': [10613, 10016, 9261, 9122, 7288],
-        'CITY': ['San Mateo', 'New York City', 'Boston', 'Denver', 'Seattle'],
-        'LATITUDE': [37.5625, 40.7128, 42.3601, 39.7392, 47.6062],
-        'LONGITUDE': [-122.3229, -74.0060, -71.0589, -104.9903, -122.3321]
-    })
+    ## Predicted Future Sales Based On Customer Cluster
+    st.subheader('Predict Future Sales Based On Customer Cluster')
 
     ## Define user input functions
     # User Input 1: Select Customer Cluster
@@ -251,7 +254,7 @@ with tab1:
                 marker=dict(
                     size=final_df['PREDICT_SALES_Rounded'] / 1000000,  # Adjust marker size based on sales (scaled down for aesthetics)
                     sizemode='diameter',
-                    sizeref=0.05,  # Adjust the scaling factor for marker size
+                    sizeref=0.03,  # Adjust the scaling factor for marker size
                     color=final_df['UPLIFT_PERCENTAGE'],  # Use percentage uplift as the marker color
                     colorscale='Viridis',  # Choose a suitable colorscale
                     colorbar=dict(
@@ -260,14 +263,15 @@ with tab1:
                         len=0.5,
                     ),
                     opacity=0.8
-                )
+                ),
+                showlegend=False  # Set showlegend to False to hide the legend
             )
         )
 
         # Add custom labels to the map
         labels = []
         for index, row in final_df.iterrows():
-            label = f"Total Predicted Sales: ${row['PREDICT_SALES_Rounded']:.2f}M<br>" + \
+            label = f"Total Predicted Sales: ${row['PREDICT_SALES_Rounded']:.2f}<br>" + \
                     f"Average Predicted Spending per Customer: ${row['AVG_SPENDING_Rounded']:.2f}<br>" + \
                     f"Percentage Uplift: {row['UPLIFT_PERCENTAGE']:.2f}%"
             labels.append(label)
@@ -279,6 +283,7 @@ with tab1:
                 mode='text',
                 text=labels,
                 textfont=dict(size=10, color='white'),
+                showlegend=False  # Set showlegend to False to hide the legend
             )
         )
 
@@ -295,7 +300,17 @@ with tab1:
         # Display the map in the Streamlit tab
         st.plotly_chart(fig)
 
-        
+    ## Define Function to display results in table
+    def display_table(data):
+        final_df = data[['CITY', 'PREDICT_SALES_Rounded', 'AVG_SPENDING_Rounded', 'UPLIFT_PERCENTAGE']]
+        final_df.rename(columns={'CITY':'City',
+                                'PREDICT_SALES_Rounded': 'Predicted Sales ($)',
+                                'AVG_SPENDING_Rounded': 'Average Sales Per Customer ($)',
+                                'UPLIFT_PERCENTAGE': 'Uplife Percentage (%)'}, inplace=True)
+        st.write(final_df)
+        return
+
+     
     ## Get user inputs
     cluster_input = get_cust_cluster()
     timeframe_input = get_timeframe()
@@ -313,6 +328,9 @@ with tab1:
             # Display the map in the Streamlit tab
             display_map(final_df)
             
+            # Display table result
+            display_table(final_df)
+            
         elif (timeframe_input == '2 months'):
             ## Load data based on selected timeframe
             data_2M = load_uplift_2M()
@@ -322,6 +340,9 @@ with tab1:
             
             # Display the map in the Streamlit tab
             display_map(final_df)
+            
+            # Display table result
+            display_table(final_df)
             
         else:
             ## Load data based on selected timeframe
@@ -333,7 +354,9 @@ with tab1:
             # Display the map in the Streamlit tab
             display_map(final_df)
             
-
+            # Display table result
+            display_table(final_df)
+            
 with tab2:
     st.title('Title')
     st.subheader('Sub Title')
