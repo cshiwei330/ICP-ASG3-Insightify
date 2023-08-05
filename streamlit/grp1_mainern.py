@@ -169,6 +169,11 @@ with tab2:
     # Load the model
     with open('./uplift/Uplift_1M.pkl', 'rb') as file:
         uplift_1M = pickle.load(file)
+    
+    # Define function to load the cluster sales
+    def load_cluster_sales_1M():
+        data = pd.read_csv("./uplift/clusterSales[1M].csv") 
+        return data
 
     st.subheader("Based on Specific Value")
 
@@ -203,7 +208,7 @@ with tab2:
         'CUSTOMER_FREQUENCY': [frequency_pickle],
         'TOTAL_ORDER': [5],
         'RECENCY_DAYS': [recency_pickle],
-        'CITY_FREQUENCY': [get_city_int(city_input)],
+        'CITY_FREQUENCY': get_city_int(city_input),
         'ORDER_TOTAL_S1': [5],
         'ORDER_TOTAL_S2': [5],
         'ORDER_TOTAL_S3': [5],
@@ -235,6 +240,9 @@ with tab2:
     if st.button('Test'):
         st.write(final)
         st.write(final.dtypes)
+        pred = uplift_1M.predict_proba(final)
+        st.write(pred)
+        
     
 
 
