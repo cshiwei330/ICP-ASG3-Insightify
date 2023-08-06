@@ -45,15 +45,24 @@ with tab1:
     st.subheader('Sub Title')
     
 with tab2:
-    st.title('Predicting Customer Spending')
+    st.title('Predicting Customer Spending :moneybag:')
 
-    # Based on RFM
-    st.subheader('Based on RFM')
+    st.markdown("This tab allows you to make predictions on the customer spending in the next month based on their city, recency cluster(R), frequency cluster(F) and monetary cluster(M).")
+    st.markdown("At the bottom, it allow users to mannually input values to get the customer spending in the next month and find out what customer group they belong to.")
 
     # Get customer details
     customer_df = session.table("NGEE_ANN_POLYTECHNIC_FROSTBYTE_DATA_SHARE.raw_customer.customer_loyalty")
     us_customer_df = customer_df.filter(F.col("COUNTRY") == "United States")
+
+    # Get order details
+    order_header_df = session.table("NGEE_ANN_POLYTECHNIC_FROSTBYTE_DATA_SHARE.raw_pos.order_header")
+    order_header_df = order_header_df.na.drop(subset="CUSTOMER_ID")
+    customer_US = us_customer_df.select(F.col("CUSTOMER_ID"))
+    order_header_df = order_header_df.join(customer_US, order_header_df.CUSTOMER_ID == customer_US.CUSTOMER_ID, lsuffix = "", rsuffix = "_US")
+
+    # Convert to pandas
     us_customer_df = us_customer_df.to_pandas()
+    order_header_df = order_header_df.to_pandas()
 
     # Define function to load the uplift prediction model
     def load_Uplift_Churn_1M():
@@ -85,6 +94,29 @@ with tab2:
         for each in city_input:
             city_int.append(city_dict[each]['CITY_FREQUENCY'])
         return city_int
+    
+    # Bar chart 
+    order_year = order_header_df[['ORDER_ID', 'ORDER_TS', 'ORDER_AMOUNT']]
+
+    # Extract the year from the 'ORDER_TS' column
+    order_year['year'] = order_year['ORDER_TS'].dt.year
+
+    # Group the data by 'year' and calculate the sum of 'ORDER_AMOUNT'
+    sum_by_year = order_year.groupby('year')['ORDER_AMOUNT'].sum()
+
+    # Convert the result into a DataFrame
+    bar_df = sum_by_year.reset_index()
+    # Set 'year' as the index
+    bar_df.set_index('year', inplace=True)
+
+    # Display bar chart
+    st.subheader("Bar Chart of Revenue across Year")
+    st.bar_chart(bar_df)
+    st.markdown("From the bar chart, we are able to see that the yearly revenue for Tasty Bytes has been increasing. However, will it be able to achieve the goal of increasing the revenue by 25% year on year across 5 years?")
+    st.markdown("Use the predictor below to find out! :money_mouth_face:")
+
+    # Based on RFM
+    st.subheader('Based on RFM')
 
     # Select City
     city_input = get_city() 
@@ -136,11 +168,14 @@ with tab2:
 
         st.write("In the next month, the selected group of customer will generate ${:0,.2f}.".format(predictedsales))
         if (predictedsales > actualsales):
-            st.write("This is an increase by ${:0,.2f}".format(uplift) + " which is an increase of {:.2f}%.".format(percentuplift))
+            st.write("This is an increase by ${:0,.2f}".format(uplift) + " which is an increase of {:.2f}%. :smile:".format(percentuplift))
 
         else:
-            st.write("Which is an decrease of ${:0,.2f}".format(uplift))
-            st.write("This is an decrease of {:.2f}%".format(percentuplift))
+            st.write("Which is an decrease of ${:0,.2f}".format(uplift) + " which is a decrease of {:.2f}%. :pensive:".format(percentuplift))
+
+    # convert dataframe to csv 
+    def convert_df(df):
+       return df.to_csv(index=False).encode('utf-8')
 
     if st.button('Predict Uplift'):
         # City input
@@ -162,10 +197,18 @@ with tab2:
 
         lower = lower.merge(us_customer_df, on = "CUSTOMER_ID", how = "left")
 
-        lower = lower[["CUSTOMER_ID", "FIRST_NAME", "LAST_NAME", "BIRTHDAY_DATE", "E_MAIL", "PHONE_NUMBER"]]
+        lower = lower[["CUSTOMER_ID", "FIRST_NAME", "LAST_NAME", "E_MAIL", "PHONE_NUMBER"]]
 
         lower = lower.sort_values(by=['CUSTOMER_ID'])
-        st.write(lower)
+        st.write(lower) 
+        csv = convert_df(lower)
+
+        st.download_button(
+        label="Download details of customer that did not contribute to the uplift",
+        data=csv,
+        file_name='customer_details.csv',
+        mime='text/csv',
+    )
 
     # Based on Specific Value
     st.subheader("Based on Specific Value")
@@ -211,7 +254,7 @@ with tab2:
     st.write('You selected:', frequency_pickle)
 
     # Monetary
-    monetary_value = list(range(1, 1501))
+    monetary_value = list(range(150, 1501))
     monetary_pickle = st.select_slider("Total amount spent yearly", options=monetary_value)
     st.write('You selected:', monetary_pickle)
 
@@ -282,7 +325,7 @@ with tab2:
         pred = pd.DataFrame(pred)
         final["PREDICT_SALES_ST"] = (pred[0] * cluster_sales['Cluster0MeanSales'][0]) + (pred[1] * cluster_sales['Cluster1MeanSales'][0])
         amountSpent = final["PREDICT_SALES_ST"]
-        
+
         st.write("This specific customer would be spending ${:0,.2f} in the next month".format(amountSpent[0]))
         
         if (final["CUST_REC_CLUSTER"][0] == 1):
@@ -302,17 +345,6 @@ with tab2:
         else:
             st.write("This customer belongs to the Low Spending Customer cluster.")
         
-        
-    
-
-
-
-
-
-
-
-    
-
     
 with tab3:
     st.title('Predicting Customer Churn')
