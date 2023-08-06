@@ -46,6 +46,8 @@ with tab1:
     
 with tab2:
     st.title('Predicting Customer Spending')
+
+    # Based on RFM
     st.subheader('Based on RFM')
 
     # Get customer details
@@ -60,6 +62,7 @@ with tab2:
     
     # Load the model
     upliftdata = load_Uplift_Churn_1M()
+    upliftdata_copy = load_Uplift_Churn_1M()
     
     # Define function to load the cluster sales
     def load_cluster_sales_1M():
@@ -134,11 +137,9 @@ with tab2:
         st.write("In the next month, the selected group of customer will generate ${:0,.2f}.".format(predictedsales))
         if (predictedsales > actualsales):
             st.write("This is an increase by ${:0,.2f}".format(uplift) + " which is an increase of {:.2f}%.".format(percentuplift))
-            #st.write("from ${:0,.2f}".format(actualsales))
-            #st.write("This is an increase of {:.2f}%".format(percentuplift))
+
         else:
             st.write("Which is an decrease of ${:0,.2f}".format(uplift))
-            #st.write("from ${:0,.2f}".format(actualsales))
             st.write("This is an decrease of {:.2f}%".format(percentuplift))
 
     if st.button('Predict Uplift'):
@@ -166,6 +167,9 @@ with tab2:
         lower = lower.sort_values(by=['CUSTOMER_ID'])
         st.write(lower)
 
+    # Based on Specific Value
+    st.subheader("Based on Specific Value")
+
     # Load the model
     with open('./uplift/Uplift_1M.pkl', 'rb') as file:
         uplift_1M = pickle.load(file)
@@ -174,8 +178,22 @@ with tab2:
     def load_cluster_sales_1M():
         data = pd.read_csv("./uplift/clusterSales[1M].csv") 
         return data
+    
+    # User input
+    def get_city2():
+        city_selection2 = st.selectbox("Select City*", options = load_city_enc())
+        city_list2 = [city_selection2]
+        return city_list2
+    def get_city_int2(city_input2):
+        # Load city mapping 
+        city_dict = load_city_enc()
+        city_int2 = [] # Store selected city frequency 
+        for each in city_input2:
+            city_int2.append(city_dict[each]['CITY_FREQUENCY'])
+        return city_int2
 
-    st.subheader("Based on Specific Value")
+    # Select City
+    city_input2 = get_city2() 
 
     # Years with us
     timeframe_value =  list(range(0, 5))
@@ -187,13 +205,13 @@ with tab2:
     recency_pickle = st.select_slider("Days since last purchase", options=recency_value)
     st.write('You selected:', recency_pickle)
 
-    # Frequent
-    frequency_value = list(range(0, 51))
+    # Frequency
+    frequency_value = list(range(5, 51))
     frequency_pickle = st.select_slider("Number of orders yearly", options=frequency_value)
     st.write('You selected:', frequency_pickle)
 
     # Monetary
-    monetary_value = list(range(0, 1501))
+    monetary_value = list(range(1, 1501))
     monetary_pickle = st.select_slider("Total amount spent yearly", options=monetary_value)
     st.write('You selected:', monetary_pickle)
 
@@ -202,18 +220,18 @@ with tab2:
 
     # Dataframe
     data = {
-        'YEARS_WITH_US': [5],
-        'MONETARY_VALUE': [monetary_pickle],
         'TOTAL_SPENT': [totalspent_pickle],
+        'YEARS_WITH_US': [years_pickle],
+        'MONETARY_VALUE': [monetary_pickle],
         'CUSTOMER_FREQUENCY': [frequency_pickle],
-        'TOTAL_ORDER': [5],
+        'TOTAL_ORDER': [0],
         'RECENCY_DAYS': [recency_pickle],
-        'CITY_FREQUENCY': get_city_int(city_input),
-        'ORDER_TOTAL_S1': [5],
-        'ORDER_TOTAL_S2': [5],
-        'ORDER_TOTAL_S3': [5],
-        'CHANGE_FROM_S1_TO_S2': [5],
-        'CHANGE_FROM_S2_TO_S3': [5]
+        'CITY_FREQUENCY': get_city_int2(city_input2),
+        'ORDER_TOTAL_S1': [0],
+        'ORDER_TOTAL_S2': [0],
+        'ORDER_TOTAL_S3': [0],
+        'CHANGE_FROM_S1_TO_S2': [0],
+        'CHANGE_FROM_S2_TO_S3': [0]
     }
 
     final = pd.DataFrame(data)
@@ -237,11 +255,53 @@ with tab2:
 
     final['OVERALL_SCORE'] = final['CUST_REC_CLUSTER'] + final['CUST_FREQ_CLUSTER'] + final['CUST_MONETARY_CLUSTER']
 
-    if st.button('Test'):
-        st.write(final)
-        st.write(final.dtypes)
+    if st.button('Predict'):
+        # Get data based on customer cluster
+        filter_value_r = int(final.iloc[0]['CUST_REC_CLUSTER'])
+        filter_value_f = int(final.iloc[0]['CUST_FREQ_CLUSTER'])
+        filter_value_m = int(final.iloc[0]['CUST_MONETARY_CLUSTER'])
+
+        filtered_data_2 = upliftdata_copy[(upliftdata_copy['CUST_REC_CLUSTER'] == filter_value_r) & (upliftdata_copy['CUST_FREQ_CLUSTER'] == filter_value_f) &
+                                          (upliftdata_copy['CUST_MONETARY_CLUSTER'] == filter_value_m) & (upliftdata_copy['CITY_FREQUENCY'].isin(get_city_int2(city_input2)))]
+        
+
+        filter_value_order = filtered_data_2["TOTAL_ORDER"].mean()
+        filter_value_s1 = filtered_data_2["ORDER_TOTAL_S1"].mean()
+        filter_value_s2 = filtered_data_2["ORDER_TOTAL_S2"].mean()
+        filter_value_s3 = filtered_data_2["ORDER_TOTAL_S3"].mean()
+
+        final["TOTAL_ORDER"] = filter_value_order
+        final["ORDER_TOTAL_S1"] = filter_value_s1
+        final["ORDER_TOTAL_S2"] = filter_value_s2
+        final["ORDER_TOTAL_S3"] = filter_value_s3
+        final["CHANGE_FROM_S1_TO_S2"] = (filter_value_s2 - filter_value_s1)
+        final["CHANGE_FROM_S2_TO_S3"] = (filter_value_s3 - filter_value_s2)
+
+        cluster_sales = load_cluster_sales_1M()
         pred = uplift_1M.predict_proba(final)
-        st.write(pred)
+        pred = pd.DataFrame(pred)
+        final["PREDICT_SALES_ST"] = (pred[0] * cluster_sales['Cluster0MeanSales'][0]) + (pred[1] * cluster_sales['Cluster1MeanSales'][0])
+        amountSpent = final["PREDICT_SALES_ST"]
+        
+        st.write("This specific customer would be spending ${:0,.2f} in the next month".format(amountSpent[0]))
+        
+        if (final["CUST_REC_CLUSTER"][0] == 1):
+            st.write("This customer belongs to the Recent Customer cluster.")
+        else:
+            st.write("This customer belongs to the Old Customer cluster.")
+
+        if (final["CUST_FREQ_CLUSTER"][0] == 1):
+            st.write("This customer belongs to the Moderately Frequent Customer cluster .")
+        elif (final["CUST_FREQ_CLUSTER"][0] == 0):
+             st.write("This customer belongs to the Infrequent Customer cluster.")
+        else:
+            st.write("This customer belongs to the Frequent Customer cluster.")
+
+        if (final["CUST_MONETARY_CLUSTER"][0] == 1):
+            st.write("This customer belongs to the High Spending Customer cluster.")
+        else:
+            st.write("This customer belongs to the Low Spending Customer cluster.")
+        
         
     
 
