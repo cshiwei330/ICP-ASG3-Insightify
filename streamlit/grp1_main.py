@@ -570,7 +570,7 @@ with tab2:
     # Display bar chart
     st.subheader("Bar Chart of Revenue across Year")
     st.bar_chart(bar_df)
-    st.subheader("Insights :chart_with_upwards_trend:")
+    st.subheader("Insights :mag:")
     st.markdown("From the bar chart, we are able to observe:")
     st.markdown("● Yearly revenue for Tasty Bytes has been increasing from 2019 to 2022.")
     st.markdown("However, will it be able to achieve the goal of increasing the revenue by 25% YoY across 5 years?")
@@ -645,7 +645,7 @@ with tab2:
             filterdata(filtered_data)
 
         if st.checkbox('Display Recommendations'):
-            st.subheader("Details of Customer that did not contribute to the uplift")
+            st.subheader("Details of customers that did not contribute to the uplift")
 
             # City input
             city_int = get_city_int(city_input)
@@ -671,7 +671,7 @@ with tab2:
             file_name='customer_details.csv',
             mime='text/csv',
         )
-            st.subheader("Recommendations")
+            st.subheader("Recommendations :chart_with_upwards_trend:")
             st.write("Here are some recommendations that could be done to help generate more revenue:")
             st.write("**1. Personalised Communication:**")
             st.write("By downloading the csv file on the contact information of customers that did not contribute to the uplift, we are able to use it to send personalised messages or emails to these customers. By tailoring the communication based on their preferences, past interactions, and purchase history, the company can make the message more relevant and appealing. This would be able to engage customers more and boost the revenue.")
