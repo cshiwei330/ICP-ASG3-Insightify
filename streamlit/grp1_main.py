@@ -943,7 +943,7 @@ with tab3:
     def click_button():
         st.session_state.clicked = True
 
-    st.button('Predict Whether Customer Will Churn', on_click=click_button)
+    st.button('Predict whether Customer is Likely to Churn', on_click=click_button)
 
     if st.session_state.clicked:
         #calculate average of trans_datediff1
