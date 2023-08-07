@@ -65,7 +65,7 @@ with tab4:
     st.markdown("###" +' :arrow_up_small: Uplift Analysis for Churn/Non-Churn Customers')
     description = '''
     Using this tab, you can predict the uplift in revenue for both churn and non-churn customers in the United States (US), which plays a crucial role in helping Tasty Byte achieve its goal of attaining 25% year-over-year growth over a period of 5 years. 
-    \nThe model employed for these predictions is the AdaBoost Classifier, which was trained on historical data spanning from 1st January, 2019, to 1st November, 2022.
+    \nThe model employed for these predictions is an AdaBoost Classifier, which was trained on historical data spanning from 1st January, 2019, to 1st November, 2022.
 
     \nBelow, you will find a histogram  displaying the distribution for "Days to next Purchase." 
     '''
