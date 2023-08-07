@@ -2,9 +2,12 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import plotly.figure_factory as ff
 import datetime
 import pickle
 import json
+import math
 # Import Snowflake modules
 from snowflake.snowpark import Session
 import snowflake.snowpark.functions as F
@@ -55,47 +58,71 @@ with tab3:
     st.subheader('Sub Title')
     
 with tab4:
+   
+    # --- Title & Description for Tab--- 
+    st.markdown("###" +' Uplift Analysis for Churn/Non-Churn Customers')
+    description = '''
+    Using this tab, you can predict the uplift revenue for both churn and non-churn customers in the United States (US), which plays a crucial role in helping Tasty Byte achieve its goal of attaining 25% year-over-year growth over a period of 5 years. 
+    \nThe model employed for these predictions is the AdaBoost Classifier, which was trained on historical data spanning from 1st January, 2019, to 1st November, 2022.
+
+    \nBelow, you will find a density plot displaying the distribution for "Days to next Purchase." 
+    By analyzing this plot, you can determine the number of days it takes for customers to churn, how many years they have been members, and then choose a specific timeframe for making predictions.'''
+    st.markdown(description)
     
-    st.title('Uplift Revenue of Churn/Non-Churn Customers')
-    st.subheader('Sub Title')
-    
+    #-----Functions for loading of files-----#  
     with open('./uplift/Uplift_1M.pkl', 'rb') as file:
         uplift_1M = pickle.load(file)
     with open('./uplift/Uplift_2W.pkl', 'rb') as file:
         uplift_2W = pickle.load(file)
     with open('./uplift/Uplift_3M.pkl', 'rb') as file:
         uplift_3M = pickle.load(file)
-    
+    # caching computations that return data
+    @st.cache_data
     # Define function to load the uplift prediction model
     def load_Uplift_Churn_2W():
         data = pd.read_csv("./uplift/UpliftPrediction[2W].csv") 
         df = pd.DataFrame(data)
         return df
+    @st.cache_data
     def load_Uplift_Churn_1M():
         data = pd.read_csv("./uplift/UpliftPrediction[1M].csv") 
         df = pd.DataFrame(data)
         return df
+    @st.cache_data
     def load_Uplift_Churn_3M():
         data = pd.read_csv("./uplift/UpliftPrediction[3M].csv") 
         df = pd.DataFrame(data)
         return df
     
+    @st.cache_data
     # Define function to load the cluster sales
     def load_cluster_sales_2W():
         data = pd.read_csv("./uplift/clusterSales[2W].csv")
         return data
+    @st.cache_data
     def load_cluster_sales_1M():
         data = pd.read_csv("./uplift/clusterSales[1M].csv") 
         return data
+    @st.cache_data
     def load_cluster_sales_3M():
         data = pd.read_csv("./uplift/clusterSales[3M].csv") 
         return data
+    @st.cache_data
+    def load_next_purchase():
+        data = pd.read_csv("./uplift/NextPurchase2.csv")
+        return data
+    @st.cache_data
     def load_city_enc():
         data = pd.read_csv("./uplift/city_enc.csv") 
         city_dict = data.set_index('CITY').T.to_dict('dict')
         return city_dict
-
-     # Define the user input functions    
+    #=================================================================================================#
+    # Define the user input functions 
+    def get_churn_days(_cNum):
+        data = load_next_purchase() 
+        churn_days = _cNum.slider("Determine days for churning", math.floor(data["TARGET"].min()) , 30,  14) # Default value of 14
+        st.write(churn_days)
+        return churn_days
     def get_timeframe():
         timeframe_selection = ['2 Weeks', '1 Month', '3 Months']
         timeframe = st.selectbox('Select a timeframe', timeframe_selection)
@@ -111,99 +138,213 @@ with tab4:
         for each in city_input:
             city_int.append(city_dict[each]['CITY_FREQUENCY'])
         return city_int
+    def get_years_with_us(cNum):
+        # Slider
+        timeframe_label =  [1,2,3,4]
+        years_with_us_range = cNum.slider("Years as Member",timeframe_label[0],timeframe_label[-1], (timeframe_label[0],timeframe_label[-1]))
+        return years_with_us_range
         
-    # Slider
-    timeframe_label =  [1,2,3,4]
-    years_with_us_range = st.slider("Years as Member",timeframe_label[0],timeframe_label[-1], (timeframe_label[0],timeframe_label[-1]))
-
     # Function to find uplift
     def find_uplift(pred_df,cluster_sales, uplift_predictions_duration):
         
-            pred_df["PREDICT_SALES_ST"] = (pred_df[0] * cluster_sales['Cluster0MeanSales'][0]) + (pred_df[1] * cluster_sales['Cluster1MeanSales'][0])
-            
-            # Merge pred_df and filteredata
-            result_df = uplift_predictions_duration.merge(pred_df, left_index=True, right_index=True, how='right')
-            st.write(result_df)
-            
-            # Total sales
-            totalSales = result_df['PREDICT_SALES_ST'].sum()
-            # Total uplift
-            totalUplift = result_df['PREDICT_SALES_ST'].sum() - result_df['MONETARY_M3_HO'].sum()
-            # Calculation for change in revenue
-            percentUplift = ((result_df['PREDICT_SALES_ST'].sum()- result_df['MONETARY_M3_HO'].sum())/ result_df['MONETARY_M3_HO'].sum()) * 100
-            
-            st.write("In the next 2 weeks, the chosen group of customers will generate $ {: 0,.2f}".format(totalSales))
-            st.write("suggesting a $ {: 0,.2f} increase in revenue".format(totalUplift))
-            st.write("Which is a {:.2f}% increase".format(percentUplift))
+        pred_df["PREDICT_SALES_ST"] = (pred_df[0] * cluster_sales['Cluster0MeanSales'][0]) + (pred_df[1] * cluster_sales['Cluster1MeanSales'][0])
+        
+        # Merge pred_df and filtered data
+        result_df = uplift_predictions_duration.merge(pred_df, left_index=True, right_index=True, how='right')
+        #st.write(result_df)
+        
+        # Total sales
+        totalSales = result_df['PREDICT_SALES_ST'].sum()
+        # Total uplift
+        totalUplift = result_df['PREDICT_SALES_ST'].sum() - result_df['MONETARY_M3_HO'].sum()
+        # Calculation for change in revenue
+        percentUplift = ((result_df['PREDICT_SALES_ST'].sum()- result_df['MONETARY_M3_HO'].sum())/ result_df['MONETARY_M3_HO'].sum()) * 100
+        
+        return result_df, totalSales, totalUplift, percentUplift
     
+    # Function to display model predictions in visulisations, seperated by tabs 
+    def display_prediction_analysis(nonChurnTotalSales, nonChurn_totalUplift, nonChurn_percentUplift, churnTotalSales, churn_totalUplift, churn_percentUplift):
+        
+        # Grouping results into different aspects
+        totalSales = [nonChurnTotalSales, churnTotalSales]
+        totalUplift = [nonChurn_totalUplift, churn_totalUplift]
+        percentUplift = [nonChurn_percentUplift, churn_percentUplift]
+        
+        # Display group of customers
+        index = ['Non-Churn','Churn']
+        
+        # Storing results as dataframes
+        df_totalSales = pd.DataFrame({'Total Sales': totalSales}, index=index)
+        df_totalUplift = pd.DataFrame({'Total Uplift': totalUplift}, index=index)
+        df_percentUplift = pd.DataFrame({'Percentage Uplift': percentUplift}, index=index) 
+        
+        # Sub tab for user to navigate 
+        tab1, tab2, tab3 = st.tabs(["Total Sales", "Uplift", "Percentage Uplift"])
+
+        with tab1:
+            st.write("#### "+ "Analysis of Total Sales for Churn & Non-Churn Customers")
+            st.bar_chart(df_totalSales)
+
+        with tab2:
+            st.write("#### "+ "Analysis of Total Uplift for Churn & Non-Churn Customers")
+            st.bar_chart(df_totalUplift)
+
+        with tab3:
+            st.write("#### "+ "Analysis of Percentage Uplift for Churn & Non-Churn Customers")
+            st.bar_chart(df_percentUplift)
+       
+    # Function to filter
+    def filter_higher(next_purchase_data, uplift_predictions_time, churn_days_higher, years_with_us_range, city_int):
+        custGroup = next_purchase_data[ (next_purchase_data["TARGET"] > churn_days_higher)] # Churn days higher 
+        filtered_data_higher = uplift_predictions_time[ (uplift_predictions_time['YEARS_WITH_US'] >= years_with_us_range[0]) & (uplift_predictions_time['YEARS_WITH_US'] < years_with_us_range[1]) 
+                                            & (uplift_predictions_time['CITY_FREQUENCY'].isin(city_int)) ]
     
+        filtered_data_higher = filtered_data_higher[filtered_data_higher["CUSTOMER_ID"].isin(custGroup["CUSTOMER_ID"])]
+        filtered_data_higher = filtered_data_higher.drop(columns=['CUSTOMER_ID','MONETARY_M3_HO','LTVCluster','PREDICTED_PROBA_0','PREDICTED_PROBA_1','PREDICT_SALES','INDEX'])
+        #st.write(filtered_data_higher)
+        return filtered_data_higher 
+    
+    def filter_lower(next_purchase_data, uplift_predictions_time, churn_days_lower, years_with_us_range, city_int):
+        custGroup = next_purchase_data[ (next_purchase_data["TARGET"] <= churn_days_lower)] # Churn days falling below
+        filtered_data_lower = uplift_predictions_time[ (uplift_predictions_time['YEARS_WITH_US'] >= years_with_us_range[0]) & (uplift_predictions_time['YEARS_WITH_US'] < years_with_us_range[1]) 
+                                            & (uplift_predictions_time['CITY_FREQUENCY'].isin(city_int)) ]
+
+        filtered_data_lower = filtered_data_lower[filtered_data_lower["CUSTOMER_ID"].isin(custGroup["CUSTOMER_ID"])]
+        filtered_data_lower = filtered_data_lower.drop(columns=['CUSTOMER_ID','MONETARY_M3_HO','LTVCluster','PREDICTED_PROBA_0','PREDICTED_PROBA_1','PREDICT_SALES','INDEX'])
+        #st.write(filtered_data_lower)
+        return filtered_data_lower  
+    #=================================================================================================#
+    
+    # Display Histogram of Days to next Purchase
+    days_to_next_purchase = load_next_purchase()
+
+    # Draw the density plot
+    fig, ax = plt.subplots(figsize=(16, 9))
+    ax.hist(days_to_next_purchase['TARGET'], bins=30, color='#5ab4ac',
+                            alpha=0.7, rwidth=0.85, density=True)
+    
+    # Plot formatting
+    plt.legend(["Days to Next Purchase"], loc="upper right", fontsize=20)
+    plt.title('Density Plot for Days to next Purchase', fontsize=30)
+    plt.xlabel('Days', fontsize=20)
+    plt.tick_params(labelsize=20)
+    plt.ylabel('Density', fontsize=20)
+    plt.show()
+    st.pyplot(fig)
+
+
+    # Streamlit Tab Design
     # Define the user input fields
+    user_input_position_1 , user_input_position_2 = st.columns(2) # Position Left Right
+    churn_days = get_churn_days(user_input_position_1) # Select customer base
+    years_with_us_range = get_years_with_us(user_input_position_2) # Select duration of membership 
     timeframe_input = get_timeframe() # Select Timeframe Model 
     city_input = get_city() # Select City 
     
-    
     if st.button('Predict Uplift'):
+        # 2 Week Model timeframe 
         if (timeframe_input == '2 Weeks'):
             # Load the 2W Uplift Model
             uplift_predictions_2W = load_Uplift_Churn_2W()
             
+            # Load the next purchase date 
+            next_purchase_data = load_next_purchase()
             # Get city int  
             city_int = get_city_int(city_input)
-            
-            # Filter by user input 
-            filtered_data = uplift_predictions_2W[ (uplift_predictions_2W['YEARS_WITH_US'] >= years_with_us_range[0]) & (uplift_predictions_2W['YEARS_WITH_US'] < years_with_us_range[1]) 
-                                                  & (uplift_predictions_2W['CITY_FREQUENCY'].isin(city_int)) ]
+            if (len(city_int) == 0):
+                st.write("To proceed, please choose at least one city.")
+            else:
+                cluster_sales = load_cluster_sales_2W()
+                # --- Uplift Analysis for Non-Churn Customers --- 
+                # Filter for customer that did not churn (lower than churn days)
+                filtered_lower = filter_lower(next_purchase_data, uplift_predictions_2W, churn_days, years_with_us_range, city_int)
+                pred = uplift_2W.predict_proba(filtered_lower)
+                pred_df_lower = pd.DataFrame(pred, index=filtered_lower.index)
+                
+                nonChurn_df, nonChurnTotalSales, nonChurn_totalUplift, nonChurn_percentUplift = find_uplift(pred_df_lower, cluster_sales, uplift_predictions_2W)
 
-            filtered_data = filtered_data.drop(columns=['CUSTOMER_ID','MONETARY_M3_HO','LTVCluster','PREDICTED_PROBA_0','PREDICTED_PROBA_1','PREDICT_SALES','INDEX'])
-            st.write(filtered_data)
-            # Make a prediction, write as dataframe
-            pred = uplift_2W.predict_proba(filtered_data)
-            pred_df = pd.DataFrame(pred, index=filtered_data.index)
-            cluster_sales = load_cluster_sales_2W()
-            
-            find_uplift(pred_df, cluster_sales, uplift_predictions_2W)
-            
+                # --- Uplift Analysis for Churn Customers ---
+                # Filter for customer that churn (higher than churn days)
+                filtered_higher = filter_higher(next_purchase_data, uplift_predictions_2W, churn_days, years_with_us_range, city_int)
+                
+                # Make a prediction, write as dataframe
+                pred = uplift_2W.predict_proba(filtered_higher)
+                pred_df_higher = pd.DataFrame(pred, index=filtered_higher.index)
+
+                churn_df, churnTotalSales, churn_totalUplift, churn_percentUplift = find_uplift(pred_df_higher, cluster_sales, uplift_predictions_2W)
+                
+                # Compare Churn and Non Churn 
+                display_prediction_analysis(nonChurnTotalSales, nonChurn_totalUplift, nonChurn_percentUplift, churnTotalSales, churn_totalUplift, churn_percentUplift)
+                
+                
+        # 1 Month Model timeframe    
         elif (timeframe_input == '1 Month'):
             # Load the 1M Uplift Model
             uplift_predictions_1M = load_Uplift_Churn_1M()
             
+            # Load the next purchase date 
+            next_purchase_data = load_next_purchase()
             # Get city int  
             city_int = get_city_int(city_input)
-            
-            # Filter by user input 
-            filtered_data = uplift_predictions_1M[ (uplift_predictions_1M['YEARS_WITH_US'] >= years_with_us_range[0]) & (uplift_predictions_1M['YEARS_WITH_US'] < years_with_us_range[1]) 
-                                                  & (uplift_predictions_1M['CITY_FREQUENCY'].isin(city_int)) ]
-
-            filtered_data = filtered_data.drop(columns=['CUSTOMER_ID','MONETARY_M3_HO','LTVCluster','PREDICTED_PROBA_0','PREDICTED_PROBA_1','PREDICT_SALES','INDEX'])
-            st.write(filtered_data)
-            # Make a prediction, write as dataframe
-            pred = uplift_2W.predict_proba(filtered_data)
-            pred_df = pd.DataFrame(pred, index=filtered_data.index)
-            cluster_sales = load_cluster_sales_2W()
-            
-            find_uplift(pred_df, cluster_sales, uplift_predictions_1M)
-            
+            if (len(city_int) == 0):
+                st.write("To proceed, please choose at least one city.")
+            else:
+                cluster_sales = load_cluster_sales_1M()
+                # --- Uplift Analysis for Non-Churn Customers --- 
+                # Filter for customer that did not churn (lower than churn days)
+                filtered_lower = filter_lower(next_purchase_data, uplift_predictions_1M, churn_days, years_with_us_range, city_int)
+                pred = uplift_1M.predict_proba(filtered_lower)
+                pred_df_lower = pd.DataFrame(pred, index=filtered_lower.index)
+    
+                nonChurn_df, nonChurnTotalSales, nonChurn_totalUplift, nonChurn_percentUplift = find_uplift(pred_df_lower, cluster_sales, uplift_predictions_1M)
+                
+                # --- Uplift Analysis for Churn Customers ---
+                # Filter for customer that churn (higher than churn days)
+                filtered_higher = filter_higher(next_purchase_data, uplift_predictions_1M, churn_days, years_with_us_range, city_int)
+                
+                # Make a prediction, write as dataframe
+                pred = uplift_1M.predict_proba(filtered_higher)
+                pred_df_higher = pd.DataFrame(pred, index=filtered_higher.index)
+    
+                churn_df, churnTotalSales, churn_totalUplift, churn_percentUplift = find_uplift(pred_df_higher, cluster_sales, uplift_predictions_1M)
+                
+                # Compare Churn and Non Churn 
+                display_prediction_analysis(nonChurnTotalSales, nonChurn_totalUplift, nonChurn_percentUplift, churnTotalSales, churn_totalUplift, churn_percentUplift)
+                
+        # 3 Month Model timeframe 
         elif (timeframe_input == '3 Months'):
             # Load the 3M Uplift Model
             uplift_predictions_3M = load_Uplift_Churn_3M()
             
+            # Load the next purchase date 
+            next_purchase_data = load_next_purchase()
             # Get city int  
             city_int = get_city_int(city_input)
-            
-            # Filter by user input 
-            filtered_data = uplift_predictions_3M[ (uplift_predictions_3M['YEARS_WITH_US'] >= years_with_us_range[0]) & (uplift_predictions_3M['YEARS_WITH_US'] < years_with_us_range[1]) 
-                                                  & (uplift_predictions_3M['CITY_FREQUENCY'].isin(city_int)) ]
-
-            filtered_data = filtered_data.drop(columns=['CUSTOMER_ID','MONETARY_M3_HO','LTVCluster','PREDICTED_PROBA_0','PREDICTED_PROBA_1','PREDICT_SALES','INDEX'])
-            st.write(filtered_data)
-            # Make a prediction, write as dataframe
-            pred = uplift_2W.predict_proba(filtered_data)
-            pred_df = pd.DataFrame(pred, index=filtered_data.index)
-            cluster_sales = load_cluster_sales_2W()
-            
-            find_uplift(pred_df, cluster_sales, uplift_predictions_3M)
-        
+            if (len(city_int) == 0):
+                st.write("To proceed, please choose at least one city.")
+            else:
+                cluster_sales = load_cluster_sales_3M()
+                # --- Uplift Analysis for Non-Churn Customers --- 
+                # Filter for customer that did not churn (lower than churn days)
+                filtered_lower = filter_lower(next_purchase_data, uplift_predictions_3M, churn_days, years_with_us_range, city_int)
+                pred = uplift_3M.predict_proba(filtered_lower)
+                pred_df_lower = pd.DataFrame(pred, index=filtered_lower.index)                
     
+                nonChurn_df, nonChurnTotalSales, nonChurn_totalUplift, nonChurn_percentUplift = find_uplift(pred_df_lower, cluster_sales, uplift_predictions_3M)
+                
+                # --- Uplift Analysis for Churn Customers ---
+                # Filter for customer that churn (higher than churn days)
+                filtered_higher = filter_higher(next_purchase_data, uplift_predictions_3M, churn_days, years_with_us_range, city_int)
+                
+                # Make a prediction, write as dataframe
+                pred = uplift_3M.predict_proba(filtered_higher)
+                pred_df_higher = pd.DataFrame(pred, index=filtered_higher.index)
+    
+                churn_df, churnTotalSales, churn_totalUplift, churn_percentUplift = find_uplift(pred_df_higher, cluster_sales, uplift_predictions_3M)
+                
+                 # Compare Churn and Non Churn 
+                display_prediction_analysis(nonChurnTotalSales, nonChurn_totalUplift, nonChurn_percentUplift, churnTotalSales, churn_totalUplift, churn_percentUplift)
+            
 with tab5:
     menu_df = session.table("NGEE_ANN_POLYTECHNIC_FROSTBYTE_DATA_SHARE.raw_pos.menu")
     truck_df = session.table("NGEE_ANN_POLYTECHNIC_FROSTBYTE_DATA_SHARE.raw_pos.truck")
