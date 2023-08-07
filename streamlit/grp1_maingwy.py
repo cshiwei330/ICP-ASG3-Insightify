@@ -265,12 +265,6 @@ with tab3:
         #making of dataframe to input to model 
         data = [[spending_option, years_with_us_option, monetary, frequency, total_orders_option, recency, max_days_between, min_days_between, avg_days_between, trans_datediff1, trans_datediff2, recency_cluster, frequency_cluster, monetary_cluster, overall_score]]
         final = pd.DataFrame(data, columns = ['TOTAL_SPENT','YEARS_WITH_US','MONETARY_VALUE','CUSTOMER_FREQUENCY','TOTAL_ORDER','RECENCY_DAYS','MAX(DAYS_BETWEEN)','MIN(DAYS_BETWEEN)','AVG(DAYS_BETWEEN)','TRANS_DATEDIFF1','TRANS_DATEDIFF2','CUST_REC_CLUSTER','CUST_FREQ_CLUSTER','CUST_MONETARY_CLUSTER','OVERALL_SCORE'])
-        #temp = next_purchase_cust_seg.drop(columns=['CUSTOMER_ID', 'CHURN_STATUS', 'PREDICTED','TARGET','CLUSTER', 'Unnamed: 0'])
-        #temp = pd.concat([temp, final.iloc[[0]]], ignore_index=True)
-        
-        #scaler = StandardScaler()
-        #scaler.fit(temp)
-        #final = scaler.transform(temp)
 
         pred = npm.predict(final)
         pred = pred.round().astype(int)
