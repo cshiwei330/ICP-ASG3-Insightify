@@ -219,4 +219,8 @@ with tab5:
         ax.legend()
 
         # Display the bar chart in Streamlit
+<<<<<<< HEAD
         st.pyplot(fig)
+=======
+        st.pyplot(fig)
+>>>>>>> 822fb6c73013afb28290fcb4acbd469df3572eb9

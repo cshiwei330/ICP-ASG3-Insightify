@@ -61,7 +61,7 @@ with tab3:
 
     # loading of dataset 
     def load_next_purchase_cust_seg():
-        data = pd.read_csv("./churn/NextPurchaseCustSeg.csv")
+        data = pd.read_csv("./churn/NextPurchaseCustSeg2.csv")
         return data
     
     # filter csv based on customer segment chosen 
@@ -146,7 +146,7 @@ with tab3:
     st.caption("With customer details, targeted marketing strategies such as email marketing can be implemented to deliver personalised messages, promotions and offers that resonate with each customer. This makes the emails become more engaging and relevant, fostering a sense of value and loyalty amongst customers.")
 
     st.download_button(
-       "Press to Download Details of Customers Likely to Churn",
+       "Press to Download Details of " + cust_seg_option + " Customers Likely to Churn",
        csv,
        "churn_cust_" + str(cust_seg_option) +".csv",
        "text/csv",
@@ -157,10 +157,7 @@ with tab3:
     st.header('Predicting whether customers churn')
 
     # loading model
-    #with open('./churn/NextPurchase.pkl', 'rb') as file:
-    #    npm = pickle.load(file)
-
-    with open('./churn/NextPurchaseUnscaled.pkl', 'rb') as file:
+    with open('./churn/NextPurchase2.pkl', 'rb') as file:
         npm = pickle.load(file)
 
     # total spending input
@@ -268,12 +265,6 @@ with tab3:
         #making of dataframe to input to model 
         data = [[spending_option, years_with_us_option, monetary, frequency, total_orders_option, recency, max_days_between, min_days_between, avg_days_between, trans_datediff1, trans_datediff2, recency_cluster, frequency_cluster, monetary_cluster, overall_score]]
         final = pd.DataFrame(data, columns = ['TOTAL_SPENT','YEARS_WITH_US','MONETARY_VALUE','CUSTOMER_FREQUENCY','TOTAL_ORDER','RECENCY_DAYS','MAX(DAYS_BETWEEN)','MIN(DAYS_BETWEEN)','AVG(DAYS_BETWEEN)','TRANS_DATEDIFF1','TRANS_DATEDIFF2','CUST_REC_CLUSTER','CUST_FREQ_CLUSTER','CUST_MONETARY_CLUSTER','OVERALL_SCORE'])
-        #temp = next_purchase_cust_seg.drop(columns=['CUSTOMER_ID', 'CHURN_STATUS', 'PREDICTED','TARGET','CLUSTER', 'Unnamed: 0'])
-        #temp = pd.concat([temp, final.iloc[[0]]], ignore_index=True)
-        
-        #scaler = StandardScaler()
-        #scaler.fit(temp)
-        #final = scaler.transform(temp)
 
         pred = npm.predict(final)
         pred = pred.round().astype(int)
