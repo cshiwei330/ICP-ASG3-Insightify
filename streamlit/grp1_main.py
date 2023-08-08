@@ -37,10 +37,10 @@ session = Session.builder.configs(connection_parameters).create()
 st.set_page_config(page_title='ICP ASG 3', page_icon="favicon.ico")
 
 # Tabs set-up
-tab1, tab2, tab3, tab4, tab5 = st.tabs(['Predicting Future Sales [Shi Wei]', 'Predicting Customer Spending [Ernest]', 'Gwyneth', 'Guo Fung', 'KK'])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(['Predicting Future Sales [Shi Wei]', 'Predicting Customer Spending [Ernest]', 'Predicting Customer Churn [Gwyneth]', 'Guo Fung', 'KK'])
 
 with tab1:
-    st.title('Predicting Future Sales')
+    st.title('Predicting Future Sales :money_with_wings:')
     description = """
     Welcome to the 'Predict Future Sales' tab! 
     This dashboard is designed to help Tasty Byte's team analyze and predict future sales, aligning with the company's ambitious goal of achieving 25% YoY growth over the next 5 years.
@@ -105,7 +105,7 @@ with tab1:
     sales_df = pd.DataFrame(data)
     
     # Create bar chart
-    st.subheader('Sales Trend and Prediction')
+    st.subheader('Sales Trend and Prediction :chart_with_upwards_trend:')
     fig_1 = go.Figure()
 
     fig_1.add_trace(
@@ -129,7 +129,7 @@ with tab1:
     st.plotly_chart(fig_1)
     
     ## Present insights based on the bar chart
-    st.subheader('Insights')
+    st.subheader('Insights :eyeglasses:')
     st.write("Based on the sales trend and predictions, here are some key observations:")
 
     # Create a list of insights
@@ -155,7 +155,7 @@ with tab1:
     cluster_counts = cluster_results_df['CLUSTER'].value_counts()
     
     # Create a pie chart
-    st.subheader('Customer Cluster Distribution')
+    st.subheader('Customer Cluster Distribution :bar_chart:')
     fig_2 = go.Figure()
 
     fig_2.add_trace(
@@ -176,7 +176,7 @@ with tab1:
     st.plotly_chart(fig_2)
     
     ## Predict Future Sales Based On Customer Cluster
-    st.subheader('Predict Future Sales Based On Customer Cluster')
+    st.subheader('Predict Future Sales Based On Customer Cluster 	:telescope:')
 
     ## Define user input functions
     # User Input 1: Select Customer Cluster
@@ -186,7 +186,7 @@ with tab1:
                              '2 - Middle Value (Customers who make average purchases)', 
                              '3 - High Value (Customers who make frequent purchases and generate higher sales.)']
         selected_cluster = st.selectbox(
-            "Select Customer Cluster:", cluster_selection)
+            ":people_holding_hands: Select Customer Cluster:", cluster_selection)
         if selected_cluster == '1 - Low Value (Customers who buy less frequently and generate lower sales)':
             return 1
         elif selected_cluster == '2 - Middle Value (Customers who make average purchases)':
@@ -199,13 +199,13 @@ with tab1:
         # Display the dropdown box
         timeframe_selection = ['1 month', '2 months', '3 months']
         selected_months = st.selectbox(
-            "Select the range of months for prediction:", timeframe_selection)
+            ":calendar: Select the range of months for prediction:", timeframe_selection)
         return selected_months
     
     # User Input 3: Select Metric
     def SW_get_selected_metrics():
         # Display checkboxes for key metrics
-        st.write("Select the metrics to view:")
+        st.write(":ballot_box_with_check: Select the metrics to view:")
         show_total_sales = st.checkbox("Total Predicted sales", value=True)
         show_avg_spending = st.checkbox("Average Predicted Spending per Customer", value=True)
         selected_metrics = []
@@ -374,35 +374,35 @@ with tab1:
             if cluster_input == 1: #Low Value
                 st.write("Below are some actionable insights based on the predicted sales and uplift percentage for each city within the customer cluster (low value) over a one-month timeframe:")
                 st.write("1. Targeted Marketing Campaigns:")
-                st.write("   San Mateo has the highest predicted sales amount of $1,234,487.37 and a relatively high uplift percentage of 62.86%. Consider running targeted marketing campaigns in this city to capitalize on the high predicted sales and further increase customer engagement. Offer personalized promotions or incentives to attract more customers and drive sales even higher.")
+                st.write("   **San Mateo** has the highest predicted sales amount of **$1,234,487.37** and a relatively high uplift percentage of **62.86%**. Consider running **targeted marketing campaigns** in this city to capitalize on the high predicted sales and further increase customer engagement. Offer **personalized promotions or incentives** to attract more customers and drive sales even higher.")
 
                 st.write("2. Sales Team Focus:")
-                st.write("   Denver has a relatively lower uplift percentage of 38.84% compared to other cities. Consider directing the sales team's efforts towards this city to explore opportunities for growth and expansion. The sales team can focus on building relationships with potential customers, understanding their needs, and offering tailored solutions to drive sales in Denver.")
+                st.write("   **Denver** has a relatively lower uplift percentage of **38.84%** compared to other cities. Consider **directing the sales team's efforts towards this city** to explore opportunities for growth and expansion. The sales team can focus on building relationships with potential customers, understanding their needs, and offering tailored solutions to drive sales in Denver.")
 
                 st.write("3. Pricing Strategy:")
-                st.write("   Boston exhibits a significant uplift percentage of 111.19%. Consider implementing dynamic pricing strategies or limited-time offers in this city to take advantage of the positive sales trend. By adjusting prices based on demand and customer behavior, the company can potentially further boost sales and revenue in Boston.")
+                st.write("   **Boston** exhibits a significant uplift percentage of **111.19%**. Consider implementing **dynamic pricing strategies or limited-time offers** in this city to take advantage of the positive sales trend. By adjusting prices based on demand and customer behavior, the company can potentially further boost sales and revenue in Boston.")
                 
             elif cluster_input == 2: #High Value
                 st.write("Below are some actionable insights based on the predicted sales and uplift percentage for each city within the customer cluster (high value) over a one-month timeframe:")
                 st.write("1. Targeted Marketing Campaigns:")
-                st.write("   Consider running targeted marketing campaigns in San Mateo, which shows a significantly higher uplift percentage of 48.64%. Offer personalized promotions or incentives to attract more customers and increase sales in this area.")
+                st.write("   Consider running targeted marketing campaigns in **San Mateo**, which shows a significantly higher uplift percentage of **48.64%**. Offer **personalized promotions or incentives** to attract more customers and increase sales in this area.")
 
                 st.write("2. Customer Retention Efforts:")
-                st.write("   Focus on customer retention efforts in Seattle and New York City, where negative uplift percentages (-2.30% and -2.08%) indicate a slight decline in predicted sales. Identify and address reasons for the decline to retain existing customers and prevent further loss in sales.")
+                st.write("   Focus on customer retention efforts in **Seattle** and **New York City**, where negative uplift percentages (**-2.30% and -2.08%**) indicate a slight decline in predicted sales. **Identify and address reasons for the decline** to retain existing customers and prevent further loss in sales.")
 
                 st.write("3. Pricing Strategy:")
-                st.write("   Capitalize on the positive uplift percentage (15.44%) observed in Boston by implementing dynamic pricing strategies or limited-time offers. This can help further boost sales in the city.")
+                st.write("   Capitalize on the positive uplift percentage (**15.44%**) observed in **Boston** by implementing **dynamic pricing strategies or limited-time offers**. This can help further boost sales in the city.")
 
             else: #Middle Value
                 st.write("Below are some actionable insights based on the predicted sales and uplift percentage for each city within the customer cluster (middle value) over a one-month timeframe:")
                 st.write("1. Targeted Marketing Campaigns:")
-                st.write("   Consider running targeted marketing campaigns in Boston, which shows a significantly higher uplift percentage of 48.87%. The company can offer personalized promotions or incentives to attract more customers and increase sales in this area.")
+                st.write("   Consider running targeted marketing campaigns in **Boston**, which shows a significantly higher uplift percentage of **48.87%**. The company can offer **personalized promotions or incentives** to attract more customers and increase sales in this area.")
                 
                 st.write("2. Sales Team Focus")
-                st.write("   Denver has a relatively lower uplift percentage of 10.02% compared to other cities. Consider directing the sales team's efforts towards this city to explore opportunities for growth and expansion. The sales team can focus on building relationships with potential customers, understanding their needs, and offering tailored solutions to drive sales in Denver.")
+                st.write("   **Denver** has a relatively lower uplift percentage of **10.02%** compared to other cities. Consider **directing the sales team's efforts** towards this city to explore opportunities for growth and expansion. The sales team can focus on building relationships with potential customers, understanding their needs, and offering tailored solutions to drive sales in Denver.")
 
                 st.write("3. Pricing Strategy:")
-                st.write("   Boston exhibits a significant uplift percentage of 48.87%. Consider implementing dynamic pricing strategies or limited-time offers in this city to take advantage of the positive sales trend. By adjusting prices based on demand and customer behavior, the company can potentially further boost sales and revenue in Boston.")
+                st.write("   **Boston** exhibits a significant uplift percentage of **48.87%**. Consider implementing **dynamic pricing strategies or limited-time offers** in this city to take advantage of the positive sales trend. By adjusting prices based on demand and customer behavior, the company can potentially further boost sales and revenue in Boston.")
 
         elif (timeframe_input == '2 months'):
             ## Load data based on selected timeframe
@@ -422,35 +422,35 @@ with tab1:
             if cluster_input == 1: #Low Value
                 st.write("Below are some actionable insights based on the predicted sales and uplift percentage for each city within the customer cluster (low value) over a two-months timeframe:")
                 st.write("1. Targeted Marketing Campaigns:")
-                st.write("  San Mateo has the highest predicted sales amount of $1,236,987.90 and a relatively high uplift percentage of 63.19%. Consider running targeted marketing campaigns in this city to capitalize on the high predicted sales and further increase customer engagement. Offer personalized promotions or incentives to attract more customers and drive sales even higher.")
+                st.write("  **San Mateo** has the highest predicted sales amount of **$1,236,987.90** and a relatively high uplift percentage of **63.19%**. Consider running **targeted marketing campaigns** in this city to capitalize on the high predicted sales and further increase customer engagement. Offer personalized promotions or incentives to attract more customers and drive sales even higher.")
 
                 st.write("2. Sales Team Focus:")
-                st.write("   Denver has a relatively lower uplift percentage of 39.43% compared to other cities. Consider directing the sales team's efforts towards this city to explore opportunities for growth and expansion. The sales team can focus on building relationships with potential customers, understanding their needs, and offering tailored solutions to drive sales in Denver.")
+                st.write("   **Denver** has a relatively lower uplift percentage of **39.43%** compared to other cities. Consider **directing the sales team's efforts** towards this city to explore opportunities for growth and expansion. The sales team can focus on building relationships with potential customers, understanding their needs, and offering tailored solutions to drive sales in Denver.")
 
                 st.write("3. Pricing Strategy:")
-                st.write("   Boston exhibits a significant uplift percentage of 111.69%. Consider implementing dynamic pricing strategies or limited-time offers in this city to take advantage of the positive sales trend. By adjusting prices based on demand and customer behavior, the company can potentially further boost sales and revenue in Boston.")
+                st.write("   **Boston** exhibits a significant uplift percentage of **111.69%**. Consider implementing **dynamic pricing strategies or limited-time offers** in this city to take advantage of the positive sales trend. By adjusting prices based on demand and customer behavior, the company can potentially further boost sales and revenue in Boston.")
                 
             elif cluster_input == 2: #High Value
                 st.write("Below are some actionable insights based on the predicted sales and uplift percentage for each city within the customer cluster (high value) over a two-months timeframe:")
                 st.write("1. Targeted Marketing Campaigns:")
-                st.write("   San Mateo stands out with the predicted sales amount of $7,526.23 and the only positive uplift percentage of 2.00%. Consider running targeted marketing campaigns in San Mateo to capitalize on the high predicted sales and further increase customer engagement. Offer personalized promotions or incentives to attract more customers and drive sales even higher.")
+                st.write("   **San Mateo** stands out with the predicted sales amount of **$7,526.23** and the only positive uplift percentage of **2.00%**. Consider running **targeted marketing campaigns** in San Mateo to capitalize on the high predicted sales and further increase customer engagement. Offer personalized promotions or incentives to attract more customers and drive sales even higher.")
 
                 st.write("2. Customer Retention Efforts:")
-                st.write("   Focus on customer retention efforts in Denver, where negative uplift percentage (-18.09%) indicate a slight decline in predicted sales. Identify and address reasons for the decline to retain existing customers and prevent further loss in sales.")
+                st.write("   Focus on customer retention efforts in **Denver**, where negative uplift percentage (**-18.09%**) indicate a slight decline in predicted sales. **Identify and address reasons for the decline** to retain existing customers and prevent further loss in sales.")
 
                 st.write("3. Pricing Strategy:")
-                st.write("   Since San Mateo exhibits a positive uplift percentage of 2.00%. Consider implementing dynamic pricing strategies or limited-time offers in this city to take advantage of the positive sales trend. By adjusting prices based on demand and customer behavior, the company can potentially further boost sales and revenue in Boston.")
+                st.write("   Since **San Mateo** exhibits a positive uplift percentage of **2.00%**. Consider implementing **dynamic pricing strategies or limited-time offers** in this city to take advantage of the positive sales trend. By adjusting prices based on demand and customer behavior, the company can potentially further boost sales and revenue in Boston.")
 
             else: #Middle Value
                 st.write("Below are some actionable insights based on the predicted sales and uplift percentage for each city within the customer cluster (middle value) over a two-months timeframe:")
                 st.write("1. Targeted Marketing Campaigns:")
-                st.write("   Consider running targeted marketing campaigns in Boston, which shows a significantly higher uplift percentage of 49.61%. The company can offer personalized promotions or incentives to attract more customers and increase sales in this area.")
+                st.write("   Consider running targeted marketing campaigns in **Boston**, which shows a significantly higher uplift percentage of **49.61%**. The company can offer **personalized promotions or incentives** to attract more customers and increase sales in this area.")
                 
                 st.write("2. Sales Team Focus")
-                st.write("   Denver has a relatively lower uplift percentage of 10.56% compared to other cities. Consider directing the sales team's efforts towards this city to explore opportunities for growth and expansion. The sales team can focus on building relationships with potential customers, understanding their needs, and offering tailored solutions to drive sales in Denver.")
+                st.write("   **Denver** has a relatively lower uplift percentage of **10.56%** compared to other cities. Consider **directing the sales team's efforts** towards this city to explore opportunities for growth and expansion. The sales team can focus on building relationships with potential customers, understanding their needs, and offering tailored solutions to drive sales in Denver.")
 
                 st.write("3. Pricing Strategy:")
-                st.write("   Boston exhibits a significant uplift percentage of 49.61%. Consider implementing dynamic pricing strategies or limited-time offers in this city to take advantage of the positive sales trend. By adjusting prices based on demand and customer behavior, the company can potentially further boost sales and revenue in Boston.")
+                st.write("   **Boston** exhibits a significant uplift percentage of **49.61%**. Consider implementing **dynamic pricing strategies or limited-time offers** in this city to take advantage of the positive sales trend. By adjusting prices based on demand and customer behavior, the company can potentially further boost sales and revenue in Boston.")
             
         else:
             ## Load data based on selected timeframe
@@ -470,35 +470,35 @@ with tab1:
             if cluster_input == 1: #Low Value
                 st.write("Below are some actionable insights based on the predicted sales and uplift percentage for each city within the customer cluster (low value) over a three-months timeframe:")
                 st.write("1. Targeted Marketing Campaigns:")
-                st.write("  San Mateo stands out with the highest predicted sales amount of $2,984,755.02 and a relatively high uplift percentage of 37.65%. The company can run targeted marketing campaigns in this city to capitalize on the high predicted sales and further increase customer engagement. Offering personalized promotions or incentives can attract more customers and drive sales even higher in San Mateo.")
+                st.write("  **San Mateo** stands out with the highest predicted sales amount of **$2,984,755.02** and a relatively high uplift percentage of **37.65%**. The company can run **targeted marketing campaigns** in this city to capitalize on the high predicted sales and further increase customer engagement. Offering personalized promotions or incentives can attract more customers and drive sales even higher in San Mateo.")
 
                 st.write("2. Sales Team Focus:")
-                st.write("   Denver has a relatively lower uplift percentage of 25.58% compared to other cities. The company should consider directing the sales team's efforts towards Denver to explore opportunities for growth and expansion. The sales team can focus on building relationships with potential customers, understanding their needs, and offering tailored solutions to drive sales in Denver.")
+                st.write("   **Denver** has a relatively lower uplift percentage of **25.58%** compared to other cities. The company should consider **directing the sales team's efforts** towards Denver to explore opportunities for growth and expansion. The sales team can focus on building relationships with potential customers, understanding their needs, and offering tailored solutions to drive sales in Denver.")
 
                 st.write("3. Pricing Strategy:")
-                st.write("   Boston exhibits a significant uplift percentage of 63.94%. The company should consider implementing dynamic pricing strategies or limited-time offers in this city to take advantage of the positive sales trend. By adjusting prices based on demand and customer behavior, the company can potentially further boost sales and revenue in Boston.")
+                st.write("   **Boston** exhibits a significant uplift percentage of 63.94%. The company should consider implementing **dynamic pricing strategies or limited-time offers** in this city to take advantage of the positive sales trend. By adjusting prices based on demand and customer behavior, the company can potentially further boost sales and revenue in Boston.")
                 
             elif cluster_input == 2: #High Value
                 st.write("Below are some actionable insights based on the predicted sales and uplift percentage for each city within the customer cluster (high value) over a three-months timeframe:")
                 st.write("1. Targeted Marketing Campaigns:")
-                st.write("   San Mateo stands out with the predicted sales amount of $3,116.67 and an impressive uplift percentage of 49.12%. Consider running targeted marketing campaigns in San Mateo to capitalize on the high predicted sales and further increase customer engagement. Offer personalized promotions or incentives to attract more customers and drive sales even higher.")
+                st.write("   **San Mateo** stands out with the predicted sales amount of **$3,116.67** and an impressive uplift percentage of **49.12%**. Consider running **targeted marketing campaigns** in San Mateo to capitalize on the high predicted sales and further increase customer engagement. Offer personalized promotions or incentives to attract more customers and drive sales even higher.")
 
                 st.write("2. Customer Retention Efforts:")
-                st.write("   Focus on customer retention efforts in Denver, where negative uplift percentage (-10.18%) indicate a slight decline in predicted sales. Identify and address reasons for the decline to retain existing customers and prevent further loss in sales.")
+                st.write("   Focus on customer retention efforts in **Denver**, where negative uplift percentage (**-10.18%**) indicate a slight decline in predicted sales. **Identify and address reasons for the decline** to retain existing customers and prevent further loss in sales.")
 
                 st.write("3. Pricing Strategy:")
-                st.write("   Boston exhibits a significant uplift percentage of 16.14%. Consider implementing dynamic pricing strategies or limited-time offers in this city to take advantage of the positive sales trend. By adjusting prices based on demand and customer behavior, the company can potentially further boost sales and revenue in Boston.")
+                st.write("   **Boston** exhibits a significant uplift percentage of **16.14%**. Consider implementing **dynamic pricing strategies or limited-time offers** in this city to take advantage of the positive sales trend. By adjusting prices based on demand and customer behavior, the company can potentially further boost sales and revenue in Boston.")
 
             else: #Middle Value
                 st.write("Below are some actionable insights based on the predicted sales and uplift percentage for each city within the customer cluster (middle value) over a three-months timeframe:")
                 st.write("1. Targeted Marketing Campaigns:")
-                st.write("   Boston and New York City have relatively high predicted sales of $1,526,225.99 and $1,202,009.54, respectively. Consider running targeted marketing campaigns in these cities to capitalize on the high predicted sales and further increase customer engagement. Offer personalized promotions or incentives to attract more customers and drive sales even higher.")
+                st.write("   **Boston** and **New York City** have relatively high predicted sales of **$1,526,225.99** and **$1,202,009.54**, respectively. Consider running **targeted marketing campaigns** in these cities to capitalize on the high predicted sales and further increase customer engagement. Offer personalized promotions or incentives to attract more customers and drive sales even higher.")
                 
                 st.write("2. Sales Team Focus")
-                st.write("   Denver has a negative uplift percentage of 0.45%. Consider directing the sales team's efforts towards this city to explore opportunities for growth and expansion. The sales team can focus on building relationships with potential customers, understanding their needs, and offering tailored solutions to drive sales in Denver.")
+                st.write("   **Denver** has a negative uplift percentage of **0.45%**. Consider **directing the sales team's efforts** towards this city to explore opportunities for growth and expansion. The sales team can focus on building relationships with potential customers, understanding their needs, and offering tailored solutions to drive sales in Denver.")
 
                 st.write("3. Pricing Strategy:")
-                st.write("   New York City exhibits a significant uplift percentage of 20.89%. Consider implementing dynamic pricing strategies or limited-time offers in this city to take advantage of the positive sales trend. By adjusting prices based on demand and customer behavior, the company can potentially further boost sales and revenue in Boston.")
+                st.write("   **New York City** exhibits a significant uplift percentage of **20.89%**. Consider implementing **dynamic pricing strategies or limited-time offers** in this city to take advantage of the positive sales trend. By adjusting prices based on demand and customer behavior, the company can potentially further boost sales and revenue in Boston.")
         
 with tab2:
     st.title('Predicting Customer Spending :moneybag:')
@@ -862,11 +862,12 @@ with tab2:
                     st.write("● This customer belongs to the Low Spending Customers cluster, which means that they consistently spend a lesser amount of money in a year.")
     
 with tab3:
-    st.title('Predicting Customer Churn')
-    st.write("In this webtab, Tasty Byte management will have the ability to obtain details about churn customers across various customer segments. They can leverage the insights and advice provided to take proactive measures aimed at retaining these customers in order for Tasty Bytes to reach their goal of increasing NPS from 3 to 40 by year end 2023.")
-    st.write("Additionally, the management will also be able to experiment with customer's details to predict whether they will be likely to churn or not.")
-    st.write("Customers are likely to churn when their predicted days to next purchase is more than 14 days.")
-    st.header('Details of Churn Customers')
+    st.title('Predicting Customer Churn :worried:')
+    # introduction of web tab
+    st.write("In this web tab, Tasty Bytes management will have the ability to obtain details about churn customers across various customer segments. They can **leverage the insights and advice provided to take proactive measures** aimed at retaining these customers in order for Tasty Bytes to **reach their goal** of increasing Net Promoter Score (NPS) from 3 to 40 by year end 2023. By **effectively addressing churn**, this will ensure that customers are engaged and shows strong loyalty and satisfaction towards Tasty Bytes, signifying that the NPS score is **poised to increase**.")
+    st.write("Additionally, the management will also be able to **experiment** with customer's details to **predict** whether they will be likely to churn or not.")
+    st.write("Customers are likely to churn when their predicted days to next purchase is **more than 14 days**.")
+    st.header('Details of Churn Customers :face_with_monocle:')
 
     # loading of dataset 
     def load_next_purchase_cust_seg():
@@ -930,29 +931,29 @@ with tab3:
     min_predicted = str(cust_to_show['PREDICTED_DAYS_TO_NEXT_PURCHASE'].min())
     max_predicted = str(cust_to_show['PREDICTED_DAYS_TO_NEXT_PURCHASE'].max())
     avg_predicted = str(math.floor(cust_to_show['PREDICTED_DAYS_TO_NEXT_PURCHASE'].mean()))
-    st.subheader("Insights")
-    st.write("Out of all the " + str(cust_seg_option) + " customers, "+ str(len(cust_to_show)) + " of them are likely to churn as the average time since their last order is approximately " + str(avg_churn_recency) + " days, compared to unlikely to churn customers of " + str(avg_not_churn_recency) + " days.")
-    st.write("These customers have a predicted "+ min_predicted + "-"+ max_predicted + " days to next purchase range, with the average customers having a predicted " + avg_predicted + " days to next purchase.")
+    st.subheader("Insights :mag_right:")
+    st.write("Out of all the " + str(cust_seg_option) + " customers, "+ str(len(cust_to_show)) + " of them are **likely to churn** as the average time since their last order is approximately **" + str(avg_churn_recency) + " days**, compared to unlikely to churn customers of " + str(avg_not_churn_recency) + " days.")
+    st.write("These customers have a predicted **"+ min_predicted + "-"+ max_predicted + " days** to next purchase range, with the average customers having a predicted " + avg_predicted + " days to next purchase.")
     csv = convert_df(cust_to_show)
 
     # give advice on how to retain the churn customers
-    st.subheader("Advice to retain the churn customers")
+    st.subheader("Advice to retain the churn customers :bulb:")
     if cust_seg_option == "High Value":
-        st.write("Since these customers are of high value, it will be crucial to implement targeted retention strategies to address their potential churn as they contribute to a significant portion of Tasty Bytes revenue.")
-        st.write("The reasons behind why these customers are showing signs of potential churn despite contributing so much to Tasty Bytes’ revenue and making frequent orders should be investigated.")
-        st.write("To retain these customers, exclusive menu items can be offered to these customers to provide them with a unique and premium experience, creating a sense of loyalty and making them less likely to switch to competitors.")
-        st.write("Another suggestion is to focus on the high value customers that are more likely to purchase in the next "+ min_predicted + "-" + avg_predicted + " days, rather than customers predicted to purchase in eg. " + max_predicted + " days. This can impact overall retention rates more effectively and generate quicker positive results compared to those with longer predicted purchase timelines.")  
+        st.write("Since these customers are of high value, it will be **crucial** to implement targeted retention strategies to address their potential churn as they **contribute to a significant portion of Tasty Bytes sales**.")
+        st.write("The reasons behind **why** these customers are showing signs of potential churn despite contributing so much to Tasty Bytes’ sales and making frequent orders should be **investigated**.")
+        st.write("To retain these customers, **exclusive menu items** can be offered to these customers to provide them with a **unique and premium experience**, creating a **sense of loyalty and making them less likely to switch to competitors**.")
+        st.write("Another suggestion is to focus on the high value customers that are more likely to purchase in the next **"+ min_predicted + "-" + avg_predicted + " days**, rather than customers predicted to purchase in eg. " + max_predicted + " days. This range is derived from taking the minimum and the average number of predicted days until next purchase of customers in this segment, pinpointing a timeframe that **strikes a balance between immediate action and a reasonable lead time for retention**. This can impact overall retention rates more **effectively** and **generate quicker positive results** compared to those with longer predicted purchase timelines.")  
     elif cust_seg_option == "Middle Value":
-        st.write("Even though these customers are of middle value, they still play a significant role in the overall business. It is still essential to address their potential churn to maintain a healthy customer base.")
-        st.write("Feedback can be gathered from these customers through surveys or feedback forms to help identify areas for improvement and tailor services to better meet their needs. Responding to their concerns and suggestions can demonstrate that their opinions are valued, fostering a positive customer experience.")
-        st.write("To retain these customers, implementing personalised special offers and discounts based on their preferences and order history can be a strategic approach. This will encourage repeat business and foster a sense of appreciation amongst these customers.")
-        st.write("Another suggestion is to focus on the middle value customers that are more likely to purchase in the next "+ min_predicted + "-" + avg_predicted + " days, rather than customers predicted to purchase in eg. " + max_predicted + " days. This can impact overall retention rates more effectively and generate quicker positive results compared to those with longer predicted purchase timelines.") 
+        st.write("Even though these customers are of middle value, they still play a significant role in the overall business. It is still **essential** to address their potential churn to maintain a **healthy customer base**.")
+        st.write("Feedback can be gathered from these customers through **surveys or feedback forms** to help **identify areas for improvement and tailor services to better meet their needs**. Responding to their concerns and suggestions can demonstrate that their **opinions are valued**, fostering a **positive customer experience**.")
+        st.write("To retain these customers, implementing **personalised special offers and discounts based on their preferences and order history** can be a strategic approach. This will encourage **repeat business** and foster a **sense of appreciation** amongst these customers.")
+        st.write("Another suggestion is to focus on the middle value customers that are more likely to purchase in the next **"+ min_predicted + "-" + avg_predicted + " days**, rather than customers predicted to purchase in eg. " + max_predicted + " days. This range is derived from taking the minimum and the average number of predicted days until next purchase of customers in this segment, pinpointing a timeframe that **strikes a balance between immediate action and a reasonable lead time for retention**. This can impact overall retention rates more **effectively** and **generate quicker positive results** compared to those with longer predicted purchase timelines.") 
     else:
-        st.write("While low value customers may not contribute as much revenue as high or middle value customers, it is still important to address their potential churn and explore ways to retain them as they still represent a portion of Tasty Bytes’ customer base.")
-        st.write("Analysing these customer’s order history and  feedback through surveys or feedback forms can help to identify customer’s preferences, buying behaviour and pain points to be addressed to improve the overall customer experience.")
-        st.write("To retain these customers, attractive discounts or promotions such as cost-effective deals can be offered to incentivize repeat purchases and even an increase in order frequency. This may also potentially convert some of them into higher value customers in the long run, contributing positively to the overall business growth.")
-        st.write("Another suggestion is to focus on the low value customers that are more likely to purchase in the next "+ min_predicted + "-" + avg_predicted + " days, rather than customers predicted to purchase in eg. " + max_predicted + " days. This can impact overall retention rates more effectively and generate quicker positive results compared to those with longer predicted purchase timelines.") 
-    st.write("With customer details, targeted marketing strategies such as email marketing can be implemented to deliver personalised messages, promotions and offers that resonate with each customer. This makes the emails become more engaging and relevant, fostering a sense of value and loyalty amongst customers.")
+        st.write("While low value customers may not contribute as much sales as high or middle value customers, it is still **important** to address their potential churn and **explore ways** to retain them as they still represent a portion of Tasty Bytes’ customer base.")
+        st.write("Analysing these customer’s order history and feedback through **surveys or feedback forms** can help to identify **customer’s preferences, buying behaviour and pain points** to be addressed to improve the overall customer experience.")
+        st.write("To retain these customers, **attractive discounts or promotions such as cost-effective deals** can be offered to **incentivize repeat purchases** and even an increase in order frequency. This may also potentially **convert some of them into higher value customers** in the long run, contributing positively to the overall business growth.")
+        st.write("Another suggestion is to focus on the low value customers that are more likely to purchase in the next **"+ min_predicted + "-" + avg_predicted + " days**, rather than customers predicted to purchase in eg. " + max_predicted + " days. This range is derived from taking the minimum and the average number of predicted days until next purchase of customers in this segment, pinpointing a timeframe that **strikes a balance between immediate action and a reasonable lead time for retention**. This can impact overall retention rates more **effectively** and **generate quicker positive results** compared to those with longer predicted purchase timelines.") 
+    st.write("With customer details, **targeted marketing strategies such as email marketing** can be implemented to deliver personalised messages, promotions and offers that resonate with each customer. This makes the emails become more **engaging and relevant**, fostering a sense of value and loyalty amongst customers.")
 
     st.download_button(
        "Press to Download Details of " + cust_seg_option + " Customers Likely to Churn",
@@ -963,14 +964,15 @@ with tab3:
 
 
 
-    st.header('Predicting whether customers churn')
+    st.header('Predicting whether customers churn :face_with_one_eyebrow_raised:')
 
     # loading model
     with open('./churn/NextPurchase2.pkl', 'rb') as file:
         npm = pickle.load(file)
 
     # total spending input
-    spending_option = st.number_input("Input Total Spending of Customer", min_value=1)
+    avg_spending = math.floor(us_customer_df['TOTAL_SPENT'].mean()) 
+    spending_option = st.number_input("Input Total Spending of Customer", min_value=1, value = avg_spending)
 
     st.write('You selected:', spending_option)
 
@@ -978,9 +980,7 @@ with tab3:
     max_year = datetime.today().year - 2019
     years_list = [str(year) for year in range(1, max_year + 1)]
     years_with_us_option = st.selectbox(
-    'Select the Number of Years the Customer has been with Tasty Bytes',
-    years_list
-)
+    'Select the Number of Years the Customer has been with Tasty Bytes',years_list)
 
     st.write('You selected:', years_with_us_option)
 
@@ -1005,6 +1005,7 @@ with tab3:
 
     st.button('Predict whether Customer is Likely to Churn', on_click=click_button)
 
+    # predict whether customer is likely to churn 
     if st.session_state.clicked:
         #calculate average of trans_datediff1
         trans_datediff1 = next_purchase_cust_seg['TRANS_DATEDIFF1'].mean()
@@ -1070,12 +1071,14 @@ with tab3:
         else:
             overall_score = 0 
 
-        #making of dataframe to input to model 
+        # making of dataframe to input to model 
         data = [[spending_option, years_with_us_option, monetary, frequency, total_orders_option, recency, max_days_between, min_days_between, avg_days_between, trans_datediff1, trans_datediff2, recency_cluster, frequency_cluster, monetary_cluster, overall_score]]
         final = pd.DataFrame(data, columns = ['TOTAL_SPENT','YEARS_WITH_US','MONETARY_VALUE','CUSTOMER_FREQUENCY','TOTAL_ORDER','RECENCY_DAYS','MAX(DAYS_BETWEEN)','MIN(DAYS_BETWEEN)','AVG(DAYS_BETWEEN)','TRANS_DATEDIFF1','TRANS_DATEDIFF2','CUST_REC_CLUSTER','CUST_FREQ_CLUSTER','CUST_MONETARY_CLUSTER','OVERALL_SCORE'])
 
         pred = npm.predict(final)
         pred = pred.round().astype(int)
+
+        # show prediction results 
         if pred[-1] <= 14:
             st.write("Customer is not likely to churn.")
         else:
