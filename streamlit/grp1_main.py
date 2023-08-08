@@ -1089,8 +1089,8 @@ with tab4:
     # --- Title & Description for Tab--- 
     st.markdown("###" +' :arrow_up_small: Uplift Analysis for Churn/Non-Churn Customers')
     description = '''
-    Using this tab, you can predict the uplift in revenue for both churn and non-churn customers in the United States (US), which plays a crucial role in helping Tasty Byte achieve its goal of attaining 25% year-over-year growth over a period of 5 years. 
-    \nThe model employed for these predictions is an AdaBoost Classifier, which was trained on historical data spanning from 1st January, 2019, to 1st November, 2022.
+    Using this tab, you can predict the uplift in revenue for both churn and non-churn customers in the United States (US), which **plays a crucial role in helping Tasty Byte achieve its goal of attaining 25% year-over-year growth over a period of 5 years**. 
+    \nThe model employed for these predictions is an **AdaBoost Classifier**, which was **trained on historical data spanning from 1st January, 2019, to 1st November, 2022**.
 
     \nBelow, you will find a histogram  displaying the distribution for "Days to next Purchase." 
     '''
@@ -1206,25 +1206,25 @@ with tab4:
         totalSales = result_df['PREDICT_SALES_ST'].sum()
         # Total uplift
         totalUplift = result_df['PREDICT_SALES_ST'].sum() - result_df['MONETARY_M3_HO'].sum()
-        # Calculation for change in revenue
+        # Calculation for change in sales
         percentUplift = ((result_df['PREDICT_SALES_ST'].sum()- result_df['MONETARY_M3_HO'].sum())/ result_df['MONETARY_M3_HO'].sum()) * 100
         
         return result_df, totalSales, totalUplift, percentUplift
     def recomendation_text(churn_uplift, nonChurn_Uplift):
         st.markdown("#### "+ "Practical Insights :mag:")
         if (churn_uplift > nonChurn_Uplift):
-                recommendation = '''Churned customers have yielded a greater uplift when compared to their non-churning counterparts. Churned customers leads to a potential loss in revenue, and the analytics displayed above confirm that they are likely to generate a higher revenue uplift than customers who have not churned. Moreover, retaining existing customers proves to be a more cost-effective strategy than acquiring new ones, as churned customers already possess a certain level of familiarity with Tasty Bytes.
-                Churn customers represents potential lost in revenue, and from the analytics shown above, we acknowledged that they are likely to generate a higher uplift in revenue as compared to customers who have not churn.
+                recommendation = '''Churned customers have yielded a **greater uplift when compared to their non-churning counterparts**. Churned customers leads to a potential loss in sales, and the analytics displayed above confirm that they are likely to **generate a higher revenue uplift than customers who have not churned**. Moreover, retaining existing customers proves to be a more cost-effective strategy than acquiring new ones, as churned customers already **possess a certain level of familiarity with Tasty Bytes**.
+                Churn customers represents potential lost in sales, and from the analytics shown above, we acknowledged that they are **likely to generate a higher uplift in sales as compared to customers who have not churn**.
                 
-                \nConsequently, re-engaging with them holds the promise of securing purchases and contributing to Tasty Bytes' revenue over the long term, aligning with Tasty Bytes' objective of achieving a 25% year-over-year growth over the next five years.
-                \nHence, the marketing team can access the CSV file containing customer details of churned customers. Armed with this information, the team can execute personalized marketing strategies targeting churned customers, cultivating enduring relationships that will help Tasty Bytes in achieving its goal.
+                \nConsequently, **re-engaging with them holds the promise of securing purchases and contributing to Tasty Bytes' sales over the long term**, aligning with Tasty Bytes' objective of **achieving a 25% year-over-year growth over the next five years**.
+                \nHence, the marketing team can **download the CSV file containing customer details of churned customers**. Armed with this information, the team can execute **personalized marketing strategies targeting churned customers**, cultivating enduring relationships that will help Tasty Bytes in achieving its goal.
                 '''
                 st.write(recommendation)
         else:
-            recommendation = '''Non-churning customers have yielded a greater uplift when compared to customers that have churned. Non-churning customers are engaged and actively contributing to Tasty Bytes's revenue. 
-            This group of customers have established their loyalty by contributing consistently to the revenue stream, this allows Tasty Bytes revenue to be more predictable, allowing for better financial planning and forecasting.
+            recommendation = '''Non-churning customers have yielded a **greater uplift when compared to customers that have churned**. Non-churning customers are engaged and actively contributing to Tasty Bytes's sales. 
+            This group of customers have **established their loyalty by contributing consistently to the sales stream**, this allows Tasty Bytes sales to be more predictable, allowing for **better financial planning and forecasting**.
             
-            \nAs a strong base of non churning customers provides stable growth towards the business therefore, the marketing team can access the CSV file containing customer details of non-churning customers. Armed with this information, the team can execute personalized marketing strategies targeting churned customers, cultivating enduring relationships that will help Tasty Bytes in achieving its goal.
+            \nAs a strong base of non churning customers provides stable growth towards the business therefore, the marketing team can **download the CSV file containing customer details of non-churning customers**. Armed with this information, the team can execute **personalized marketing strategies targeting churned customers**, cultivating enduring relationships that will help Tasty Bytes in achieving its goal.
             '''
             st.write(recommendation)
         
@@ -1276,8 +1276,9 @@ with tab4:
             # Plotting
             st.plotly_chart(totalSalesGraph)
             # Display insights 
-            st.write("Total Sales Generated for Non-Churn Customers: ${:,.2f}".format(nonChurnTotalSales))
-            st.write("Total Sales Generated for Churn Customers: ${:,.2f}".format(churnTotalSales))
+            nonChurnSalesMetric, churnSalesMetric = st.columns(2)
+            nonChurnSalesMetric.metric(label="Sales Generated for Non-Churn Customers", value="${:,.2f}".format(nonChurnTotalSales))
+            churnSalesMetric.metric(label="Sales Generated for Non-Churn Customers:", value="${:,.2f}".format(churnTotalSales))
 
         # Total Uplift Tab
         with tab2:
@@ -1308,18 +1309,19 @@ with tab4:
             st.plotly_chart(totalUpliftGraph)
             # Display insights
             
-            # Negative uplift for non churn
+            # Check for Negative uplift for non churn
+            nonChurnUpliftMetric, churnUpliftMetric = st.columns(2)
             if (nonChurn_totalUplift >= 0):
-                st.write("Total Uplift for Non-Churn Customers: ${:,.2f} :large_green_circle: ".format(nonChurn_totalUplift))
+                nonChurnUpliftMetric.metric(label="Uplift for Non-Churn Customers :large_green_circle:", value="${:,.2f}".format(nonChurn_totalUplift))
             else:
-                st.write("Total Uplift for Non-Churn Customers: ${:,.2f} :small_red_triangle_down:".format(nonChurn_totalUplift))  
-            # Negative uplift for churn
+                nonChurnUpliftMetric.metric(label="Uplift for Non-Churn Customers :small_red_triangle_down:", value="${:,.2f}".format(nonChurn_totalUplift))
+            # Chcek for Negative uplift for churn
             if (churn_totalUplift >= 0):
-                st.write("Total Uplift for Churn Customers: ${:,.2f} :large_green_circle: ".format(churn_totalUplift))
+                churnUpliftMetric.metric(label="Uplift for Churn Customers :large_green_circle:", value="${:,.2f}".format(churn_totalUplift))
             else:
-                st.write("Total Uplift for Churn Customers: ${:,.2f} :small_red_triangle_down:".format(churn_totalUplift))
+                churnUpliftMetric.metric(label="Uplift for Churn Customers :small_red_triangle_down:", value="${:,.2f}".format(churn_totalUplift))
             
-            st.write("Displayed above, the uplift generated by non-churn customers amounts to {:,.2f} stemming from the participation of {} US customers. While the uplift attributed to churn customers stands at {:,.2f} with the involvement of {} US customers.".format(nonChurn_totalUplift, len(nonChurn_df.index), churn_totalUplift, len(churn_df.index)))
+            st.markdown("Displayed above, the uplift generated by **non-churn customers amounts to {:,.2f} stemming from the participation of {} US customers**. While the uplift attributed to **churn customers stands at {:,.2f} with the involvement of {} US customers.**".format(nonChurn_totalUplift, len(nonChurn_df.index), churn_totalUplift, len(churn_df.index)))
             
             # Recomendation and Call-To-Action
             recomendation_text(churn_totalUplift,nonChurn_totalUplift)
@@ -1355,16 +1357,19 @@ with tab4:
             # Plotting
             st.plotly_chart(percentUpliftGraph)
             # Display insights
-            # Negative uplift for non churn
+            nonChurnPercentMetric, churnPercentMetric = st.columns(2)
+            # Check for Negative uplift for non churn
             if (nonChurn_percentUplift >= 0):
-                st.write("Total Percentage Uplift for Non-Churn Customers: {:,.2f} % :large_green_circle: ".format(nonChurn_percentUplift))
+                nonChurnPercentMetric.metric(label="Percentage Uplift Non-Churn Customers :large_green_circle:", value="{:,.2f} %".format(nonChurn_percentUplift))
             else:
-                st.write("Total Percentage Uplift for Non-Churn Customers: {:,.2f} % :small_red_triangle_down:".format(nonChurn_percentUplift))  
-            # Negative uplift for churn
+                nonChurnPercentMetric.metric(label="Percentage Uplift for Non-Churn Customers :small_red_triangle_down:", value="{:,.2f} %".format(nonChurn_percentUplift))
+            # Check for Negative uplift for churn
             if (churn_percentUplift >= 0):
-                st.write("Total Percentage Uplift for Churn Customers: {:,.2f} % :large_green_circle: ".format(churn_percentUplift))
+                churnPercentMetric.metric(label="Percentage Uplift for Churn Customers :large_green_circle:", value="{:,.2f} %".format(churn_percentUplift))
             else:
-                st.write("Total Percentage Uplift for Churn Customers: {:,.2f} % :small_red_triangle_down:".format(churn_percentUplift))
+                churnPercentMetric.metric(label="Percentage Uplift for Churn Customers :small_red_triangle_down:", value="{:,.2f} %".format(churn_percentUplift))  
+            
+            st.markdown("Displayed above, the uplift generated by **non-churn customers amounts to {:,.2f}% uplift in sales stemming from the participation of {} US customers**. While the uplift attributed to **churn customers stands at {:,.2f}% uplift increase in sales with the involvement of {} US customers.**".format(nonChurn_percentUplift, len(nonChurn_df.index), churn_percentUplift, len(churn_df.index)))
             
             # Recomendation and Call-To-Action
             recomendation_text(churn_percentUplift,nonChurn_percentUplift)
@@ -1548,7 +1553,7 @@ with tab4:
                 
                  # Compare Churn and Non Churn 
                 display_prediction_analysis(nonChurnTotalSales, nonChurn_totalUplift, nonChurn_percentUplift, nonChurn_df, churnTotalSales, churn_totalUplift, churn_percentUplift, churn_df)
- 
+    
 with tab5:
     st.title('Title')
     st.subheader('Sub Title')
