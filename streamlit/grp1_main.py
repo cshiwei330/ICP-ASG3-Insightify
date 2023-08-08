@@ -51,13 +51,13 @@ with tab1:
     
     ## Define function to load the customer's cluster results
     def SW_load_cust_cluster():
-        data_cust_cluster = pd.read_csv("./sw_datasets/cluster_results.csv") 
+        data_cust_cluster = pd.read_csv("SW_cluster_results.csv") 
         data_cust_cluster = pd.DataFrame(data_cust_cluster)
         return data_cust_cluster
     
     ## Define function to load the uplift prediction model
     def SW_load_uplift_1M():
-        data_1m = pd.read_csv("./sw_datasets/UpliftPrediction[1M].csv") 
+        data_1m = pd.read_csv("SW_UpliftPrediction[1M].csv") 
         data_1m = pd.DataFrame(data_1m)
         # Load customer cluster data
         data_cust_cluster = SW_load_cust_cluster()
@@ -66,7 +66,7 @@ with tab1:
         return data_1m
     
     def SW_load_uplift_2M():
-        data_2m = pd.read_csv("./sw_datasets/UpliftPrediction[2M].csv") 
+        data_2m = pd.read_csv("SW_UpliftPrediction[2M].csv") 
         data_2m = pd.DataFrame(data_2m)
         # Load customer cluster data
         data_cust_cluster = SW_load_cust_cluster()
@@ -75,7 +75,7 @@ with tab1:
         return data_2m
     
     def SW_load_uplift_3M():
-        data_3m = pd.read_csv("./sw_datasets/UpliftPrediction[3M].csv") 
+        data_3m = pd.read_csv("SW_UpliftPrediction[3M].csv") 
         data_3m = pd.DataFrame(data_3m)
         # Load customer cluster data
         data_cust_cluster = SW_load_cust_cluster()
