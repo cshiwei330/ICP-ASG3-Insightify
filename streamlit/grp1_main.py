@@ -39,7 +39,7 @@ session = Session.builder.configs(connection_parameters).create()
 st.set_page_config(page_title='ICP ASG 3', page_icon="favicon.ico")
 
 # Tabs set-up
-tab1, tab2, tab3, tab4, tab5 = st.tabs(['Predicting Future Sales [Shi Wei]', 'Predicting Customer Spending [Ernest]', 'Predicting Customer Churn [Gwyneth]', 'Uplift Analysis [Guo Fung]', 'Demand Forecasting [Kok Kai]'])
+tab1, tab2, tab3, tab4 = st.tabs(['Predicting Future Sales [Shi Wei]', 'Predicting Customer Spending [Ernest]', 'Predicting Customer Churn [Gwyneth]', 'Uplift Analysis [Guo Fung]'])
 
 with tab1:
     st.title('Predicting Future Sales :money_with_wings:')
@@ -1556,7 +1556,7 @@ with tab4:
                  # Compare Churn and Non Churn 
                 display_prediction_analysis(nonChurnTotalSales, nonChurn_totalUplift, nonChurn_percentUplift, nonChurn_df, churnTotalSales, churn_totalUplift, churn_percentUplift, churn_df)
     
-with tab5:
+"""with tab5:
     menu_dfs = session.table("NGEE_ANN_POLYTECHNIC_FROSTBYTE_DATA_SHARE.raw_pos.menu")
     truck_df = session.table("NGEE_ANN_POLYTECHNIC_FROSTBYTE_DATA_SHARE.raw_pos.truck")
     history_df = session.table("FROSTBYTE_POWERBI.ANALYTICS.INVENTORY_MANAGEMENT")
@@ -1567,7 +1567,7 @@ with tab5:
     menu_df = menu_dfs.to_pandas()
     truck_df = truck_df.to_pandas()
     #im = pickle.load(open('inventory_model.sav', 'rb'))
-    with bz2.BZ2File('rf.pkl', 'rb') as compressed_file:
+    with bz2.BZ2File('streamlit/rf.pkl', 'rb') as compressed_file:
         im = pickle.load(compressed_file)
     st.title('Demand Forecasting')
     st.caption('This demand forecasting is mainly for truck owners to have an idea on their sales and demand of menu within the next 30 days. \
@@ -1766,4 +1766,4 @@ with tab5:
             # Display the bar chart in Streamlit
             st.pyplot(fig)
             st.text("It is predicted to have {0:.2f}% sales increase in the next {1} days".format(
-                (present_sales - past_sales) / past_sales * 100, tdays))
+                (present_sales - past_sales) / past_sales * 100, tdays))"""
