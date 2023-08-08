@@ -1,7 +1,8 @@
 # requirements.txt
 streamlit == 1.23.1
+pyarrow<10.1.0,>=10.0.1
 snowflake-connector-python == 3.0.3
-snowflake-snowpark-python==1.2.0
+snowflake-snowpark-python
 matplotlib == 3.7.1
 charset-normalizer==2.1.1
 urllib3==1.26.15
