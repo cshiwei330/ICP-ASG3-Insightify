@@ -39,11 +39,7 @@ session = Session.builder.configs(connection_parameters).create()
 st.set_page_config(page_title='ICP ASG 3', page_icon="favicon.ico")
 
 # Tabs set-up
-<<<<<<< HEAD
-tab1, tab2, tab3, tab4, tab5 = st.tabs(['Predicting Future Sales [Shi Wei]', 'Predicting Customer Spending [Ernest]', 'Gwyneth', 'Guo Fung', 'Demand Forecasting [Kok Kai]'])
-=======
-tab1, tab2, tab3, tab4, tab5 = st.tabs(['Predicting Future Sales [Shi Wei]', 'Predicting Customer Spending [Ernest]', 'Predicting Customer Churn [Gwyneth]', 'Guo Fung', 'KK'])
->>>>>>> 2c4ce6bd78f6e6ab14a5587c6a1614e52caff5ce
+tab1, tab2, tab3, tab4, tab5 = st.tabs(['Predicting Future Sales [Shi Wei]', 'Predicting Customer Spending [Ernest]', 'Predicting Customer Churn [Gwyneth]', 'Guo Fung', 'Demand Forecasting [Kok Kai]'])
 
 with tab1:
     st.title('Predicting Future Sales :money_with_wings:')
