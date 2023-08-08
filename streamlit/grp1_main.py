@@ -873,7 +873,7 @@ with tab3:
 
     # loading of dataset 
     def load_next_purchase_cust_seg():
-        data = pd.read_csv("./churn/NextPurchaseCustSeg2.csv")
+        data = pd.read_csv("streamlit/NextPurchaseCustSeg2.csv")
         return data
     
     # filter csv based on customer segment chosen 
@@ -969,7 +969,7 @@ with tab3:
     st.header('Predicting whether customers churn :face_with_one_eyebrow_raised:')
 
     # loading model
-    with open('./churn/NextPurchase2.pkl', 'rb') as file:
+    with open('streamlit/NextPurchase2.pkl', 'rb') as file:
         npm = pickle.load(file)
 
     # total spending input
