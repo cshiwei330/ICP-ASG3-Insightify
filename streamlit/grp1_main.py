@@ -526,7 +526,7 @@ with tab2:
 
     # Define function to load the uplift prediction model
     def load_Uplift_Churn_1M():
-        data = pd.read_csv("UpliftPrediction[1M].csv") 
+        data = pd.read_csv("streamlit/UpliftPrediction[1M].csv") 
         return data
     
     # Load the model
@@ -535,10 +535,10 @@ with tab2:
     
     # Define function to load the cluster sales
     def load_cluster_sales_1M():
-        data = pd.read_csv("clusterSales[1M].csv") 
+        data = pd.read_csv("streamlit/clusterSales[1M].csv") 
         return data
     def load_city_enc():
-        data = pd.read_csv("city_enc.csv") 
+        data = pd.read_csv("streamlit/city_enc.csv") 
         city_dict = data.set_index('CITY').T.to_dict('dict')
         return city_dict
 
@@ -721,7 +721,7 @@ with tab2:
         st.subheader("Based on Specific Value")
 
         # Load the model
-        with open('Uplift_1M.pkl', 'rb') as file:
+        with open('streamlit/Uplift_1M.pkl', 'rb') as file:
             uplift_1M = pickle.load(file)
         
         # Define function to load the cluster sales
