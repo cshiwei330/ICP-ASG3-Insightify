@@ -973,7 +973,7 @@ with tab3:
         npm = pickle.load(file)
 
     # total spending input
-    avg_spending = math.floor(us_customer_df['TOTAL_SPENT'].mean()) 
+    avg_spending = math.floor(next_purchase_cust_seg['TOTAL_SPENT'].mean()) 
     spending_option = st.number_input("Input Total Spending of Customer", min_value=1, value = avg_spending)
 
     st.write('You selected:', spending_option)
