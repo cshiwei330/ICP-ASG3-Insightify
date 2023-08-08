@@ -1557,4 +1557,4 @@ with tab4:
                 display_prediction_analysis(nonChurnTotalSales, nonChurn_totalUplift, nonChurn_percentUplift, nonChurn_df, churnTotalSales, churn_totalUplift, churn_percentUplift, churn_df)
     
 with tab5:
-    st.text("Will be presented in another streamlit")
+    st.header("Will be presented in another streamlit")
