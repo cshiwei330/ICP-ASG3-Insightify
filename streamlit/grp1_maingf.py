@@ -43,7 +43,7 @@ session = Session.builder.configs(connection_parameters).create()
 st.set_page_config(page_title='ICP ASG 3', page_icon="favicon.ico")
 
 # Tabs set-up
-tab1, tab2, tab3, tab4, tab5 = st.tabs(['SW', 'Ernest', 'Gwyneth', 'GF', 'KK'])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(['Predicting Future Sales [Shi Wei]', 'Predicting Customer Spending [Ernest]', 'Predicting Customer Churn [Gwyneth]', 'Uplift Analysis [Guo Fung]', 'Demand Forecasting [Kok Kai]'])
 
 with tab1:
     st.title('Overall')
@@ -72,50 +72,50 @@ with tab4:
     st.markdown(description)
     
     #-----Functions for loading of files-----#  
-    with open('./uplift/Uplift_1M.pkl', 'rb') as file:
+    with open('Uplift_1M.pkl', 'rb') as file:
         uplift_1M = pickle.load(file)
-    with open('./uplift/Uplift_2W.pkl', 'rb') as file:
+    with open('Uplift_2W.pkl', 'rb') as file:
         uplift_2W = pickle.load(file)
-    with open('./uplift/Uplift_3M.pkl', 'rb') as file:
+    with open('Uplift_3M.pkl', 'rb') as file:
         uplift_3M = pickle.load(file)
     # caching computations that return data
     @st.cache_data
     # Define function to load the uplift prediction model
     def load_Uplift_Churn_2W():
-        data = pd.read_csv("./uplift/UpliftPrediction[2W].csv") 
+        data = pd.read_csv("UpliftPrediction[2W].csv") 
         df = pd.DataFrame(data)
         return df
     @st.cache_data
     def load_Uplift_Churn_1M():
-        data = pd.read_csv("./uplift/UpliftPrediction[1M].csv") 
+        data = pd.read_csv("UpliftPrediction[1M].csv") 
         df = pd.DataFrame(data)
         return df
     @st.cache_data
     def load_Uplift_Churn_3M():
-        data = pd.read_csv("./uplift/UpliftPrediction[3M].csv") 
+        data = pd.read_csv("UpliftPrediction[3M].csv") 
         df = pd.DataFrame(data)
         return df
     
     @st.cache_data
     # Define function to load the cluster sales
     def load_cluster_sales_2W():
-        data = pd.read_csv("./uplift/clusterSales[2W].csv")
+        data = pd.read_csv("clusterSales[2W].csv")
         return data
     @st.cache_data
     def load_cluster_sales_1M():
-        data = pd.read_csv("./uplift/clusterSales[1M].csv") 
+        data = pd.read_csv("clusterSales[1M].csv") 
         return data
     @st.cache_data
     def load_cluster_sales_3M():
-        data = pd.read_csv("./uplift/clusterSales[3M].csv") 
+        data = pd.read_csv("clusterSales[3M].csv") 
         return data
     @st.cache_data
     def load_next_purchase():
-        data = pd.read_csv("./uplift/NextPurchase2.csv")
+        data = pd.read_csv("NextPurchase.csv")
         return data
     @st.cache_data
     def load_city_enc():
-        data = pd.read_csv("./uplift/city_enc.csv") 
+        data = pd.read_csv("city_enc.csv") 
         city_dict = data.set_index('CITY').T.to_dict('dict')
         return city_dict
     #=================================================================================================#
@@ -185,9 +185,9 @@ with tab4:
         percentUplift = ((result_df['PREDICT_SALES_ST'].sum()- result_df['MONETARY_M3_HO'].sum())/ result_df['MONETARY_M3_HO'].sum()) * 100
         
         return result_df, totalSales, totalUplift, percentUplift
-    def recomendation_text(churn, nonChurn):
+    def recomendation_text(churn_uplift, nonChurn_Uplift):
         st.markdown("#### "+ "Practical Insights :mag:")
-        if (churn > nonChurn):
+        if (churn_uplift > nonChurn_Uplift):
                 recommendation = '''Churned customers have yielded a **greater uplift when compared to their non-churning counterparts**. Churned customers leads to a potential loss in sales, and the analytics displayed above confirm that they are likely to **generate a higher revenue uplift than customers who have not churned**. Moreover, retaining existing customers proves to be a more cost-effective strategy than acquiring new ones, as churned customers already **possess a certain level of familiarity with Tasty Bytes**.
                 Churn customers represents potential lost in sales, and from the analytics shown above, we acknowledged that they are **likely to generate a higher uplift in sales as compared to customers who have not churn**.
                 
