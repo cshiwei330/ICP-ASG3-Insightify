@@ -136,8 +136,8 @@ with tab1:
 
     # Create a list of insights
     insights = [
-        "There is a positive growth trend in sales over the three upcoming months, which aligns with Tasty Byte's growth goal.",
-        "The predicted sales for January 2023 shows significant growth and is a positive indicator of progress towards the 25% YoY growth goal.",
+        "There is a **positive growth trend** in sales over the three upcoming months, which aligns with Tasty Byte's growth goal.",
+        "The predicted sales for January 2023 shows significant growth and is a **positive indicator of progress** towards the 25% YoY growth goal.",
     ]
 
     # Display the insights in a bullet point format
@@ -173,6 +173,9 @@ with tab1:
     fig_2.update_layout(
         showlegend=False,
     )
+
+    # Display the pie chart in the Streamlit tab
+    st.plotly_chart(fig_2)
     
     ## Present insights based on the bar chart
     st.subheader('Insights :eyeglasses:')
@@ -181,17 +184,14 @@ with tab1:
     # Create a list of insights
     insights2 = [
         "Significant portion of customer base falls into Middle Value.",
-        "Consider implementing strategies like targeted promotions, loyalty programs, or personalized offerings to encourage customers from the Middle Value to move up to the High Value segment.",
-        "Consider initiatives like cross-selling, upselling, or offering incentives for repeat purchases for customers in the Low Value segment, to increase their engagement and encourage more frequent or high-value purchases."
+        "Consider implementing strategies like **targeted promotions**, **loyalty programs**, or **personalized offerings** to encourage customers from the Middle Value to **move up** to the High Value segment.",
+        "Consider initiatives like **cross-selling**, **upselling**, or **offering incentives for repeat purchases** for customers in the Low Value segment, to increase their engagement and **encourage more frequent or high-value purchases**."
     ]
 
     # Display the insights in a bullet point format
     st.write("✓ " + insights2[0])
     st.write("✓ " + insights2[1])
     st.write("✓ " + insights2[2])
-
-    # Display the pie chart in the Streamlit tab
-    st.plotly_chart(fig_2)
     
     ## Predict Future Sales Based On Customer Cluster
     st.subheader('Predict Future Sales Based On Customer Cluster 	:telescope:')
