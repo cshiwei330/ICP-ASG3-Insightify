@@ -39,13 +39,13 @@ session = Session.builder.configs(connection_parameters).create()
 st.set_page_config(page_title='ICP ASG 3', page_icon="favicon.ico")
 
 # Tabs set-up
-tab1, tab2, tab3, tab4, tab5 = st.tabs(['Predicting Future Sales [Shi Wei]', 'Predicting Customer Spending [Ernest]', 'Predicting Customer Churn [Gwyneth]', 'Uplift Analysis [Guo Fung]', 'Demand Forecasting [Kok Kai]'])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(['Predict Future Sales', 'Predict Customer Spending', 'Predict Customer Churn', 'Uplift Analysis', 'Demand Forecasting'])
 
 with tab1:
     st.title('Predicting Future Sales :money_with_wings:')
     description = """
     Welcome to the 'Predict Future Sales' tab! 
-    This dashboard is designed to help Tasty Byte's team analyze and predict future sales, aligning with the company's ambitious goal of achieving 25% YoY growth over the next 5 years.
+    This dashboard is designed to help Tasty Byte's team analyze and predict future sales, aligning with the company's goal of achieving **25% YoY growth over the next 5 years**.
 
     With this interactive tool, you can explore valuable insights that will contribute to your strategic decision-making process. 
     Gain a deeper understanding of sales trends, identify growth opportunities, and make data-driven decisions to propel Tasty Byte towards its long-term vision."""
@@ -173,6 +173,22 @@ with tab1:
     fig_2.update_layout(
         showlegend=False,
     )
+    
+    ## Present insights based on the bar chart
+    st.subheader('Insights :eyeglasses:')
+    st.write("Based on the cluster distributions, here are some key observations:")
+
+    # Create a list of insights
+    insights2 = [
+        "Significant portion of customer base falls into Middle Value.",
+        "Consider implementing strategies like targeted promotions, loyalty programs, or personalized offerings to encourage customers from the Middle Value to move up to the High Value segment.",
+        "Consider initiatives like cross-selling, upselling, or offering incentives for repeat purchases for customers in the Low Value segment, to increase their engagement and encourage more frequent or high-value purchases."
+    ]
+
+    # Display the insights in a bullet point format
+    st.write("✓ " + insights2[0])
+    st.write("✓ " + insights2[1])
+    st.write("✓ " + insights2[2])
 
     # Display the pie chart in the Streamlit tab
     st.plotly_chart(fig_2)
@@ -379,10 +395,10 @@ with tab1:
                 st.write("   **San Mateo** has the highest predicted sales amount of **$1,234,487.37** and a relatively high uplift percentage of **62.86%**. Consider running **targeted marketing campaigns** in this city to capitalize on the high predicted sales and further increase customer engagement. Offer **personalized promotions or incentives** to attract more customers and drive sales even higher.")
 
                 st.write("2. Sales Team Focus:")
-                st.write("   **Denver** has a relatively lower uplift percentage of **38.84%** compared to other cities. Consider **directing the sales team's efforts towards this city** to explore opportunities for growth and expansion. The sales team can focus on building relationships with potential customers, understanding their needs, and offering tailored solutions to drive sales in Denver.")
+                st.write("   **Denver** has a relatively lower uplift percentage of **38.84%** compared to other cities. Consider **directing the sales team's efforts towards this city** to explore opportunities for growth and expansion. The sales team can focus on **building relationships** with potential customers, **understanding their needs**, and offering tailored solutions to drive sales in Denver.")
 
                 st.write("3. Pricing Strategy:")
-                st.write("   **Boston** exhibits a significant uplift percentage of **111.19%**. Consider implementing **dynamic pricing strategies or limited-time offers** in this city to take advantage of the positive sales trend. By adjusting prices based on demand and customer behavior, the company can potentially further boost sales and revenue in Boston.")
+                st.write("   **Boston** exhibits a significant uplift percentage of **111.19%**. Consider implementing **dynamic pricing strategies or limited-time offers** in this city to take advantage of the positive sales trend. By **adjusting prices** based on demand and customer behavior, the company can potentially further boost sales and revenue in Boston.")
                 
             elif cluster_input == 2: #High Value
                 st.write("Below are some actionable insights based on the predicted sales and uplift percentage for each city within the customer cluster (high value) over a one-month timeframe:")
