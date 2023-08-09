@@ -1296,7 +1296,7 @@ with tab4:
             # Display insights 
             nonChurnSalesMetric, churnSalesMetric = st.columns(2)
             nonChurnSalesMetric.metric(label="Sales Generated for Non-Churn Customers", value="${:,.2f}".format(nonChurnTotalSales))
-            churnSalesMetric.metric(label="Sales Generated for Non-Churn Customers:", value="${:,.2f}".format(churnTotalSales))
+            churnSalesMetric.metric(label="Sales Generated for Churn Customers:", value="${:,.2f}".format(churnTotalSales))
 
         # Total Uplift Tab
         with tab2:
