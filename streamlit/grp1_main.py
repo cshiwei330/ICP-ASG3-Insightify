@@ -726,7 +726,7 @@ with tab2:
         
         # Define function to load the cluster sales
         def load_cluster_sales_1M():
-            data = pd.read_csv("clusterSales[1M].csv") 
+            data = pd.read_csv("streamlit/clusterSales[1M].csv") 
             return data
         
         # User input
