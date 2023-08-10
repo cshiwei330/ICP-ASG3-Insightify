@@ -53,13 +53,13 @@ with tab1:
     
     ## Define function to load the customer's cluster results
     def SW_load_cust_cluster():
-        data_cust_cluster = pd.read_csv("streamlit/SW_cluster_results.csv") 
+        data_cust_cluster = pd.read_csv("SW_cluster_results.csv") 
         data_cust_cluster = pd.DataFrame(data_cust_cluster)
         return data_cust_cluster
     
     ## Define function to load the uplift prediction model
     def SW_load_uplift_1M():
-        data_1m = pd.read_csv("streamlit/SW_UpliftPrediction[1M].csv") 
+        data_1m = pd.read_csv("SW_UpliftPrediction[1M].csv") 
         data_1m = pd.DataFrame(data_1m)
         # Load customer cluster data
         data_cust_cluster = SW_load_cust_cluster()
@@ -68,7 +68,7 @@ with tab1:
         return data_1m
     
     def SW_load_uplift_2M():
-        data_2m = pd.read_csv("streamlit/SW_UpliftPrediction[2M].csv") 
+        data_2m = pd.read_csv("SW_UpliftPrediction[2M].csv") 
         data_2m = pd.DataFrame(data_2m)
         # Load customer cluster data
         data_cust_cluster = SW_load_cust_cluster()
@@ -77,7 +77,7 @@ with tab1:
         return data_2m
     
     def SW_load_uplift_3M():
-        data_3m = pd.read_csv("streamlit/SW_UpliftPrediction[3M].csv") 
+        data_3m = pd.read_csv("SW_UpliftPrediction[3M].csv") 
         data_3m = pd.DataFrame(data_3m)
         # Load customer cluster data
         data_cust_cluster = SW_load_cust_cluster()
@@ -542,7 +542,7 @@ with tab2:
 
     # Define function to load the uplift prediction model
     def load_Uplift_Churn_1M():
-        data = pd.read_csv("streamlit/UpliftPrediction[1M].csv") 
+        data = pd.read_csv("UpliftPrediction[1M].csv") 
         return data
     
     # Load the model
@@ -551,10 +551,10 @@ with tab2:
     
     # Define function to load the cluster sales
     def load_cluster_sales_1M():
-        data = pd.read_csv("streamlit/clusterSales[1M].csv") 
+        data = pd.read_csv("clusterSales[1M].csv") 
         return data
     def load_city_enc():
-        data = pd.read_csv("streamlit/city_enc.csv") 
+        data = pd.read_csv("city_enc.csv") 
         city_dict = data.set_index('CITY').T.to_dict('dict')
         return city_dict
 
@@ -737,12 +737,12 @@ with tab2:
         st.subheader("Based on Specific Value")
 
         # Load the model
-        with open('streamlit/Uplift_1M.pkl', 'rb') as file:
+        with open('Uplift_1M.pkl', 'rb') as file:
             uplift_1M = pickle.load(file)
         
         # Define function to load the cluster sales
         def load_cluster_sales_1M():
-            data = pd.read_csv("streamlit/clusterSales[1M].csv") 
+            data = pd.read_csv("clusterSales[1M].csv") 
             return data
         
         # User input
@@ -889,7 +889,7 @@ with tab3:
 
     # loading of dataset 
     def load_next_purchase_cust_seg():
-        data = pd.read_csv("streamlit/NextPurchaseCustSeg2.csv")
+        data = pd.read_csv("NextPurchaseCustSeg2.csv")
         return data
     
     # filter csv based on customer segment chosen 
@@ -985,7 +985,7 @@ with tab3:
     st.header('Predicting whether customers churn :face_with_one_eyebrow_raised:')
 
     # loading model
-    with open('streamlit/NextPurchase2.pkl', 'rb') as file:
+    with open('NextPurchase2.pkl', 'rb') as file:
         npm = pickle.load(file)
 
     # total spending input
@@ -1115,50 +1115,50 @@ with tab4:
     st.markdown(description)
     
     #-----Functions for loading of files-----#  
-    with open('streamlit/Uplift_1M.pkl', 'rb') as file:
+    with open('Uplift_1M.pkl', 'rb') as file:
         uplift_1M = pickle.load(file)
-    with open('streamlit/Uplift_2W.pkl', 'rb') as file:
+    with open('Uplift_2W.pkl', 'rb') as file:
         uplift_2W = pickle.load(file)
-    with open('streamlit/Uplift_3M.pkl', 'rb') as file:
+    with open('Uplift_3M.pkl', 'rb') as file:
         uplift_3M = pickle.load(file)
     # caching computations that return data
     @st.cache_data
     # Define function to load the uplift prediction model
     def load_Uplift_Churn_2W():
-        data = pd.read_csv("streamlit/UpliftPrediction[2W].csv") 
+        data = pd.read_csv("UpliftPrediction[2W].csv") 
         df = pd.DataFrame(data)
         return df
     @st.cache_data
     def load_Uplift_Churn_1M():
-        data = pd.read_csv("streamlit/UpliftPrediction[1M].csv") 
+        data = pd.read_csv("UpliftPrediction[1M].csv") 
         df = pd.DataFrame(data)
         return df
     @st.cache_data
     def load_Uplift_Churn_3M():
-        data = pd.read_csv("streamlit/UpliftPrediction[3M].csv") 
+        data = pd.read_csv("UpliftPrediction[3M].csv") 
         df = pd.DataFrame(data)
         return df
     
     @st.cache_data
     # Define function to load the cluster sales
     def load_cluster_sales_2W():
-        data = pd.read_csv("streamlit/clusterSales[2W].csv")
+        data = pd.read_csv("clusterSales[2W].csv")
         return data
     @st.cache_data
     def load_cluster_sales_1M():
-        data = pd.read_csv("streamlit/clusterSales[1M].csv") 
+        data = pd.read_csv("clusterSales[1M].csv") 
         return data
     @st.cache_data
     def load_cluster_sales_3M():
-        data = pd.read_csv("streamlit/clusterSales[3M].csv") 
+        data = pd.read_csv("clusterSales[3M].csv") 
         return data
     @st.cache_data
     def load_next_purchase():
-        data = pd.read_csv("streamlit/NextPurchase.csv")
+        data = pd.read_csv("NextPurchase.csv")
         return data
     @st.cache_data
     def load_city_enc():
-        data = pd.read_csv("streamlit/city_enc.csv") 
+        data = pd.read_csv("city_enc.csv") 
         city_dict = data.set_index('CITY').T.to_dict('dict')
         return city_dict
     #=================================================================================================#
@@ -1296,7 +1296,7 @@ with tab4:
             # Display insights 
             nonChurnSalesMetric, churnSalesMetric = st.columns(2)
             nonChurnSalesMetric.metric(label="Sales Generated for Non-Churn Customers", value="${:,.2f}".format(nonChurnTotalSales))
-            churnSalesMetric.metric(label="Sales Generated for Non-Churn Customers:", value="${:,.2f}".format(churnTotalSales))
+            churnSalesMetric.metric(label="Sales Generated for Churn Customers:", value="${:,.2f}".format(churnTotalSales))
 
         # Total Uplift Tab
         with tab2:
