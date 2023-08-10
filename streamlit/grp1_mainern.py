@@ -38,13 +38,9 @@ session = Session.builder.configs(connection_parameters).create()
 st.set_page_config(page_title='ICP ASG 3', page_icon="favicon.ico")
 
 # Tabs set-up
-tab1, tab2, tab3, tab4, tab5 = st.tabs(['SW', 'Ernest', 'Gwyneth', 'GF', 'KK'])
-
-with tab1:
-    st.title('Overall')
-    st.subheader('Sub Title')
+tab1 = st.tabs(['Ernest [Predicting Customer Spending]'])
     
-with tab2:
+with tab1:
     st.title('Predicting Customer Spending :moneybag:')
 
     st.markdown("This tab allows the Tasty Bytes's team to analyse and predict customer spending, to aid them to achieve their goal of 25% YoY growth in sales across 5 years.")
@@ -68,7 +64,7 @@ with tab2:
 
     # Define function to load the uplift prediction model
     def load_Uplift_Churn_1M():
-        data = pd.read_csv("./uplift/UpliftPrediction[1M].csv") 
+        data = pd.read_csv("streamlit/UpliftPrediction[1M].csv") 
         return data
     
     # Load the model
@@ -77,10 +73,10 @@ with tab2:
     
     # Define function to load the cluster sales
     def load_cluster_sales_1M():
-        data = pd.read_csv("./uplift/clusterSales[1M].csv") 
+        data = pd.read_csv("streamlit/clusterSales[1M].csv") 
         return data
     def load_city_enc():
-        data = pd.read_csv("./uplift/city_enc.csv") 
+        data = pd.read_csv("streamlit/city_enc.csv") 
         city_dict = data.set_index('CITY').T.to_dict('dict')
         return city_dict
 
@@ -263,12 +259,12 @@ with tab2:
         st.subheader("Based on Specific Value")
 
         # Load the model
-        with open('./uplift/Uplift_1M.pkl', 'rb') as file:
+        with open('streamlit/Uplift_1M.pkl', 'rb') as file:
             uplift_1M = pickle.load(file)
         
         # Define function to load the cluster sales
         def load_cluster_sales_1M():
-            data = pd.read_csv("./uplift/clusterSales[1M].csv") 
+            data = pd.read_csv("streamlit/clusterSales[1M].csv") 
             return data
         
         # User input
@@ -404,16 +400,3 @@ with tab2:
                     st.write("● This customer belongs to the High Spending Customers cluster, which means that they consistently spend a significant amount of money in a year.")
                 else:
                     st.write("● This customer belongs to the Low Spending Customers cluster, which means that they consistently spend a lesser amount of money in a year.")
-            
-    
-with tab3:
-    st.title('Predicting Customer Churn')
-    st.subheader('Sub Title')
-    
-with tab4:
-    st.title('Uplift Revenue of Churn/Non-Churn Customers')
-    st.subheader('Sub Title')
-
-with tab5:
-    st.title('Inventory Management')
-    st.subheader('Truck')
