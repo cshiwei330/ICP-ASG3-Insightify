@@ -542,7 +542,7 @@ with tab2:
 
     # Define function to load the uplift prediction model
     def load_Uplift_Churn_1M():
-        data = pd.read_csv("UpliftPrediction[1M].csv") 
+        data = pd.read_csv("streamlit/UpliftPrediction[1M].csv") 
         return data
     
     # Load the model
