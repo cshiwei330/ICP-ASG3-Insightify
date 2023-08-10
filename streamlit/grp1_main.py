@@ -737,12 +737,12 @@ with tab2:
         st.subheader("Based on Specific Value")
 
         # Load the model
-        with open('Uplift_1M.pkl', 'rb') as file:
+        with open('streamlit/Uplift_1M.pkl', 'rb') as file:
             uplift_1M = pickle.load(file)
         
         # Define function to load the cluster sales
         def load_cluster_sales_1M():
-            data = pd.read_csv("clusterSales[1M].csv") 
+            data = pd.read_csv("streamlit/clusterSales[1M].csv") 
             return data
         
         # User input
@@ -889,7 +889,7 @@ with tab3:
 
     # loading of dataset 
     def load_next_purchase_cust_seg():
-        data = pd.read_csv("NextPurchaseCustSeg2.csv")
+        data = pd.read_csv("streamlit/NextPurchaseCustSeg2.csv")
         return data
     
     # filter csv based on customer segment chosen 
@@ -985,7 +985,7 @@ with tab3:
     st.header('Predicting whether customer is likely to churn :face_with_one_eyebrow_raised:')
 
     # loading model
-    with open('NextPurchase2.pkl', 'rb') as file:
+    with open('streamlit/NextPurchase2.pkl', 'rb') as file:
         npm = pickle.load(file)
 
     # total spending input
@@ -1115,50 +1115,50 @@ with tab4:
     st.markdown(description)
     
     #-----Functions for loading of files-----#  
-    with open('Uplift_1M.pkl', 'rb') as file:
+    with open('streamlit/Uplift_1M.pkl', 'rb') as file:
         uplift_1M = pickle.load(file)
-    with open('Uplift_2W.pkl', 'rb') as file:
+    with open('streamlit/Uplift_2W.pkl', 'rb') as file:
         uplift_2W = pickle.load(file)
-    with open('Uplift_3M.pkl', 'rb') as file:
+    with open('streamlit/Uplift_3M.pkl', 'rb') as file:
         uplift_3M = pickle.load(file)
     # caching computations that return data
     @st.cache_data
     # Define function to load the uplift prediction model
     def load_Uplift_Churn_2W():
-        data = pd.read_csv("UpliftPrediction[2W].csv") 
+        data = pd.read_csv("streamlit/UpliftPrediction[2W].csv") 
         df = pd.DataFrame(data)
         return df
     @st.cache_data
     def load_Uplift_Churn_1M():
-        data = pd.read_csv("UpliftPrediction[1M].csv") 
+        data = pd.read_csv("streamlit/UpliftPrediction[1M].csv") 
         df = pd.DataFrame(data)
         return df
     @st.cache_data
     def load_Uplift_Churn_3M():
-        data = pd.read_csv("UpliftPrediction[3M].csv") 
+        data = pd.read_csv("streamlit/UpliftPrediction[3M].csv") 
         df = pd.DataFrame(data)
         return df
     
     @st.cache_data
     # Define function to load the cluster sales
     def load_cluster_sales_2W():
-        data = pd.read_csv("clusterSales[2W].csv")
+        data = pd.read_csv("streamlit/clusterSales[2W].csv")
         return data
     @st.cache_data
     def load_cluster_sales_1M():
-        data = pd.read_csv("clusterSales[1M].csv") 
+        data = pd.read_csv("streamlit/clusterSales[1M].csv") 
         return data
     @st.cache_data
     def load_cluster_sales_3M():
-        data = pd.read_csv("clusterSales[3M].csv") 
+        data = pd.read_csv("streamlit/clusterSales[3M].csv") 
         return data
     @st.cache_data
     def load_next_purchase():
-        data = pd.read_csv("NextPurchase.csv")
+        data = pd.read_csv("streamlit/NextPurchase.csv")
         return data
     @st.cache_data
     def load_city_enc():
-        data = pd.read_csv("city_enc.csv") 
+        data = pd.read_csv("streamlit/city_enc.csv") 
         city_dict = data.set_index('CITY').T.to_dict('dict')
         return city_dict
     #=================================================================================================#
@@ -1583,7 +1583,7 @@ with tab5:
     menu_df = menu_dfs.to_pandas()
     truck_df = truck_df.to_pandas()
     #im = pickle.load(open('inventory_model.sav', 'rb'))
-    with bz2.BZ2File('rf.pkl', 'rb') as compressed_file:
+    with bz2.BZ2File('streamlit/rf.pkl', 'rb') as compressed_file:
         im = pickle.load(compressed_file)
     st.title('Demand Forecasting')
     st.caption('This demand forecasting is mainly for truck owners to have an idea on their sales and demand of menu within the next 30 days. \
