@@ -551,10 +551,10 @@ with tab2:
     
     # Define function to load the cluster sales
     def load_cluster_sales_1M():
-        data = pd.read_csv("clusterSales[1M].csv") 
+        data = pd.read_csv("streamlit/clusterSales[1M].csv") 
         return data
     def load_city_enc():
-        data = pd.read_csv("city_enc.csv") 
+        data = pd.read_csv("streamlit/city_enc.csv") 
         city_dict = data.set_index('CITY').T.to_dict('dict')
         return city_dict
 
